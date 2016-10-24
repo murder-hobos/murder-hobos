@@ -44,14 +44,14 @@ CREATE TABLE `Character`(
     proficiency_bonus      INT NULL,
     user_id                INT UNSIGNED NOT NULL,
     PRIMARY KEY(id),
-    FOREIGN KEY(user_id) REFERENCES User(id)
+    FOREIGN KEY(user_id) REFERENCES User(id) ON DELETE CASCADE
 );
 
 CREATE TABLE CharacterSpells(
     char_id             INT UNSIGNED NOT NULL,
     spell_id            INT UNSIGNED NOT NULL,
     PRIMARY KEY(char_id, spell_id),
-    FOREIGN KEY(char_id) REFERENCES `Character`(id),
+    FOREIGN KEY(char_id) REFERENCES `Character`(id) ON DELETE CASCADE,
     FOREIGN KEY(spell_id) REFERENCES Spell(id)
 );
 
@@ -67,7 +67,7 @@ CREATE TABLE CharacterLevels(
     char_id             INT UNSIGNED,
     class_id            TINYINT UNSIGNED,
     PRIMARY KEY (char_id, class_id),
-    FOREIGN KEY (char_id) REFERENCES `Character`(id),
+    FOREIGN KEY (char_id) REFERENCES `Character`(id) ON DELETE CASCADE,
     FOREIGN KEY (class_id) REFERENCES Class(id)
 );
 
