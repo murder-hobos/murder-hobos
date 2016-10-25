@@ -1,0 +1,13 @@
+{{define "title"}}{{.Title}}{{end}}
+{{define "content"}}
+<div class="container">
+  <div class="page-header">
+    <h1>{{.Title}}</h1>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      {{.Body}}
+    </div>
+  </div>
+</div>
+{{end}}
