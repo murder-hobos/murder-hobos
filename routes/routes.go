@@ -11,11 +11,14 @@ import (
 )
 
 var (
-	// package global holding all of our templates in our templates dir
+	// Package global that holds a map of our templates.
+	//
 	tmpls map[string]*template.Template
 )
 
+// package initialization, sets up our tmpls map
 func init() {
+	log.Println("Initializing template map")
 	if tmpls == nil {
 		tmpls = make(map[string]*template.Template)
 	}
@@ -34,8 +37,8 @@ func init() {
 
 	for _, layout := range layouts {
 		files := append(includes, layout)
-		fmt.Println(files)
 		tmpls[filepath.Base(layout)] = template.Must(template.ParseFiles(files...))
+		log.Printf("Added to tmpl map: %s\n", filepath.Base(layout))
 	}
 }
 
