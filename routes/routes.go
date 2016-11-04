@@ -67,11 +67,6 @@ func New() *gmux.Router {
 	return r
 }
 
-// hello world
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello murder-hobos!")
-}
-
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	p := &Page{Title: "Murder Hobos", Body: "Welcome to Murder Hobos!"}
 	err := renderTemplate(w, "index", p)
