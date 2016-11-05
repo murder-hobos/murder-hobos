@@ -1,7 +1,6 @@
-INSERT INTO SourceText (
-INSERT INTO Class (id, name, base_class_id)
-VALUES (1, "Bard"),
-       (2, "Cleric"),
+INSERT INTO Class(id, name, base_class_id) VALUES
+       (1, "Bard", NULL),
+       (2, "Cleric", NULL),
        (3, "Cleric (Knowledge)", 2),
        (4, "Cleric (Life)", 2),
        (5, "Cleric (Light)", 2),
@@ -10,7 +9,7 @@ VALUES (1, "Bard"),
        (8, "Cleric (Trickery)", 2),
        (9, "Cleric (War)", 2),
        (10, "Cleric (Death)", 2),
-       (11, "Druid"),
+       (11, "Druid", NULL),
        (12, "Druid (Arctic)", 11),
        (13, "Druid (Coast)", 11),
        (14, "Druid (Desert)", 11),
@@ -19,17 +18,17 @@ VALUES (1, "Bard"),
        (17, "Druid (Mountain)", 11), 
        (18, "Druid (Swamp)", 11),
        (19, "Druid (Underdark)", 11),
-       (20, "Paladin"),
+       (20, "Paladin", NULL),
        (21, "Paladin (Ancients)", 20),
        (22, "Paladin (Devotion)", 20),
        (23, "Paladin (Vengence)", 20),
-       (24, "Ranger"),
-       (25, "Sorcerer"),
-       (26, "Warlock"),
+       (24, "Ranger", NULL),
+       (25, "Sorcerer", NULL),
+       (26, "Warlock", NULL),
        (27, "Warlock (Archfey)", 26),
        (28, "Warlock (Fiend)", 26),
        (29, "Warlock (Great Old One)", 26),
-       (30, "Wizard"),
-);
+       (30, "Wizard", NULL)
+;
 
 
