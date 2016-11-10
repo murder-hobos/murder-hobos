@@ -21,36 +21,32 @@ var (
 
 // Compendium represents a <compendium> element
 type Compendium struct {
-	XMLName xml.Name `xml:"compendium"`
-	Spell   []Spell  `xml:"spell"`
+	XMLName   xml.Name    `xml:"compendium"`
+	FileSpell []FileSpell `xml:"spell"`
 }
 
-// Spell is a giant catchall representing both a spell from the xml file and
-// an adapted version to our database.
-type Spell struct {
-	Name          string   `xml:"name"db:"name"`
-	Level         string   `xml:"level"db:"level"`
-	SchoolAbbrv   string   `xml:"school"`
-	RitualStr     string   `xml:"ritual"`
-	RitualBool    bool     `db:"ritual"`
-	Time          string   `xml:"time"db:"cast_time"`
-	Range         string   `xml:"range"db:"range"`
+// FileSpell represents a <spell> element from our xml file
+type FileSpell struct {
+	Name          string   `xml:"name"`
+	Level         string   `xml:"level"`
+	School        string   `xml:"school"`
+	Ritual        string   `xml:"ritual"`
+	Time          string   `xml:"time"`
+	Range         string   `xml:"range"`
 	ComponentsStr string   `xml:"components"`
-	Duration      string   `xml:"duration"db:"duration"`
+	Duration      string   `xml:"duration"`
 	ClassesStr    string   `xml:"classes"`
 	Texts         []string `xml:"text"`
-	Concentration bool     `db:"concentration"`
 	Components    *Components
-	SourceText    int `db:"source_id"`
 }
 
-// Init finishes initalizing the Spell, filling out derived DB fields from
-// the provided xml fields
-func (s *Spell) Init() {
-	s.Components = parseComponents(s.ComponentsStr)
-	s.Concentration = strings.Contains(s.Duration, "Concentration")
-	s.RitualBool = s.RitualStr != ""
-
+// DbSpell represents our database version of a spell
+type DbSpell struct {
+	Name     string `db:"name"`
+	Level    string `db:"level"`
+	School   string `db:"school"`
+	CastTime string `db:"cast_time"`
+	Duration string `db:"duration"`
 }
 
 // Class represents our database Class table
