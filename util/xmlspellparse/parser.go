@@ -3,6 +3,7 @@ package xmlspellparse
 import (
 	"database/sql"
 	"encoding/xml"
+	"log"
 	"strings"
 )
 
@@ -23,7 +24,6 @@ var (
 
 // Compendium represents our top level <compendium> element
 type Compendium struct {
-	XMLName  xml.Name   `xml:"compendium"`
 	XMLSpell []XMLSpell `xml:"spell"`
 }
 
@@ -31,41 +31,22 @@ type Compendium struct {
 //
 // Struct tags in Go (the stuff between the `'s) are used commonly
 // by encoding packages. Here we're telling the xml package how we
-// want it to parse into our struct.
-// For each element, the form is
-// 			`xml:"element_name_in_file,which_part_of_element"`
-// Where the name in the file defaults to the lowercase version of
-// the struct field, and the part of element refers to whether
-// the data is an attribute (attr), part of the regular character data
-// between opening and closing tags (chardata), or other options we
-// won't need in this situation.
-//
-// When we name our struct fields the same as the file elements,
-// we don't need to include the first part of that struct tag.
-// Since our elements don't have any attributes, only chardata,
-// the xml package knows to just throw the chardata into our fields.
+// want it to parse into our struct. Each time the xml parser encounters
+// an xml element, it looks for a struct tag in our struct that matches
+// that elements name. If it finds one, it assigns the value from that
+// element to our struct field.
 type XMLSpell struct {
-	Name       string   `xml:"name,chardata"`
-	Level      string   `xml:"level,chardata"`
-	School     string   `xml:"school,chardata"`
-	Ritual     string   `xml:"ritual,chardata"`
-	Time       string   `xml:"time,chardata"`
-	Range      string   `xml:"range,chardata"`
-	Components string   `xml:"components,chardata"`
-	Duration   string   `xml:"duration,chardata"`
-	Classes    string   `xml:"classes,chardata"`
-	Texts      []string `xml:"text,chardata"`
-}
-
-// UnmarshalXML unmarshalls xml data from a Decoder xml parser into
-// a Compendium struct
-func (c *Compendium) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	var data *Compendium
-	err := d.DecodeElement(data, &start)
-	if err != nil {
-		c = data
-	}
-	return err
+	XMLName    xml.Name `xml:"spell"`
+	Name       string   `xml:"name"`
+	Level      string   `xml:"level"`
+	School     string   `xml:"school"`
+	Ritual     string   `xml:"ritual"`
+	Time       string   `xml:"time"`
+	Range      string   `xml:"range"`
+	Components string   `xml:"components"`
+	Duration   string   `xml:"duration"`
+	Classes    string   `xml:"classes"`
+	Texts      []string `xml:"text"`
 }
 
 // DbSpell represents our database version of a spell
@@ -100,13 +81,18 @@ type Class struct {
 }
 
 // Capitalize a single char from a string at specified index
-func capitalizeAtIndex(s string, i int) string {
+// If an error is encountered, normally index being out of range,
+// ok will be set to false and the original string returned unaltered
+func capitalizeAtIndex(s string, i int) (string, bool) {
+	if i < 0 || i > len(s)-1 {
+		return s, false
+	}
 	out := []rune(s)
 	badstr := string(out[i])
 	goodstr := strings.ToUpper(badstr)
 	goodrune := []rune(goodstr)
 	out[i] = goodrune[0]
-	return string(out)
+	return string(out), true
 }
 
 // toNullString converts a regular string to a sql.NullString
@@ -134,7 +120,10 @@ func parseComponents(s string) *Components {
 
 		// Descriptions are all lower case, make them look prettier
 		// by capitalizing the first letter
-		cdesc := capitalizeAtIndex(desc, 0)
+		cdesc, ok := capitalizeAtIndex(desc, 0)
+		if !ok {
+			log.Printf("Error capitalizing %v at index %d\n", desc, 0)
+		}
 		matdesc = toNullString(cdesc)
 	}
 

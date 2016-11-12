@@ -78,3 +78,44 @@ func Test_parseComponents(t *testing.T) {
 		}
 	}
 }
+
+func Test_capitalizeAtIndex(t *testing.T) {
+	type args struct {
+		s string
+		i int
+	}
+	tests := []struct {
+		name  string
+		args  args
+		swant string
+		bwant bool
+	}{
+		{"First", args{"bill", 0}, "Bill", true},
+		{"Negative index", args{"asdf", -1}, "asdf", false},
+		{"Index too big", args{"qwert", 5}, "qwert", false},
+	}
+	for _, tt := range tests {
+		if sgot, bgot := capitalizeAtIndex(tt.args.s, tt.args.i); sgot != tt.swant || bgot != tt.bwant {
+			t.Errorf("%q. capitalizeAtIndex() = %v, %v, want %v, %v", tt.name, sgot, bgot, tt.swant, tt.bwant)
+		}
+	}
+}
+
+func Test_toNullString(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name string
+		args args
+		want sql.NullString
+	}{
+		{"Should be valid", args{"valid"}, sql.NullString{"valid", true}},
+		{"Should be invalid", args{""}, sql.NullString{"", false}},
+	}
+	for _, tt := range tests {
+		if got := toNullString(tt.args.s); !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("%q. toNullString() = %v, want %v", tt.name, got, tt.want)
+		}
+	}
+}
