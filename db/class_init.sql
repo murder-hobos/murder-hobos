@@ -1,8 +1,10 @@
+SET foreign_key_checks = 0;
 DELETE FROM Class;
+SET foreign_key_checks = 1;
 INSERT INTO Class(id, name, base_class_id) VALUES
        (1, "Bard", NULL),
        (2, "Cleric", NULL),
-       (3, "Cleric (Arcana)", 2)
+       (3, "Cleric (Arcana)", 2),
        (4, "Cleric (Knowledge)", 2),
        (5, "Cleric (Life)", 2),
        (6, "Cleric (Light)", 2),
