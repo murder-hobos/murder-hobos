@@ -7,78 +7,98 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
+	_ "github.com/go-sql-driver/mysql"
 )
 
-func Test_parseComponents(t *testing.T) {
+func TestComponents_parseComponents(t *testing.T) {
+	type fields struct {
+		Verb    bool
+		Som     bool
+		Mat     bool
+		Matdesc sql.NullString
+	}
 	type args struct {
 		s string
 	}
 	tests := []struct {
-		name string
-		args args
-		want *Components
+		name   string
+		fields fields
+		args   args
 	}{
-		{"V",
+		{
+			"V",
+			fields{Verb: true, Som: false, Mat: false, Matdesc: sql.NullString{
+				String: "",
+				Valid:  false},
+			},
 			args{"V"},
-			&Components{Verb: true, Som: false, Mat: false, Matdesc: sql.NullString{
+		},
+		{
+			"V, S",
+			fields{Verb: true, Som: true, Mat: false, Matdesc: sql.NullString{
 				String: "",
 				Valid:  false},
 			},
-		},
-		{"V, S",
 			args{"V, S"},
-			&Components{Verb: true, Som: true, Mat: false, Matdesc: sql.NullString{
+		},
+		{
+			"V, S, M",
+			fields{Verb: true, Som: true, Mat: true, Matdesc: sql.NullString{
 				String: "",
 				Valid:  false},
 			},
-		},
-		{"V, S, M",
 			args{"V, S, M"},
-			&Components{Verb: true, Som: true, Mat: true, Matdesc: sql.NullString{
-				String: "",
-				Valid:  false},
-			},
 		},
-		{"V, S, M (text)",
-			args{"V, S, M (a jade circlet worth at least 1,500 gp, which you must place on your head before you cast the spell)"},
-			&Components{Verb: true, Som: true, Mat: true, Matdesc: sql.NullString{
+		{
+			"V, S, M (text)",
+			fields{Verb: true, Som: true, Mat: true, Matdesc: sql.NullString{
 				String: "A jade circlet worth at least 1,500 gp, which you must place on your head before you cast the spell",
 				Valid:  true},
 			},
+			args{"V, S, M (a jade circlet worth at least 1,500 gp, which you must place on your head before you cast the spell)"},
 		},
-		{"S",
-			args{"S"},
-			&Components{Verb: false, Som: true, Mat: false, Matdesc: sql.NullString{
+
+		{
+			"S",
+			fields{Verb: false, Som: true, Mat: false, Matdesc: sql.NullString{
 				String: "",
 				Valid:  false},
 			},
+			args{"S"},
 		},
-		{"V, M (text)",
-			args{"V, M (bat fur and a drop of pitch or piece of coal)"},
-			&Components{Verb: true, Som: false, Mat: true, Matdesc: sql.NullString{
+		{
+			"V, M (text)",
+			fields{Verb: true, Som: false, Mat: true, Matdesc: sql.NullString{
 				String: "Bat fur and a drop of pitch or piece of coal",
 				Valid:  true},
 			},
+			args{"V, M (bat fur and a drop of pitch or piece of coal)"},
 		},
-		{"S, M",
-			args{"S, M"},
-			&Components{Verb: false, Som: true, Mat: true, Matdesc: sql.NullString{
+		{
+			"S, M",
+			fields{Verb: false, Som: true, Mat: true, Matdesc: sql.NullString{
 				String: "",
 				Valid:  false},
 			},
+			args{"S, M"},
 		},
-		{"S, M (text)",
-			args{"S, M (a glowing stick of incense or a crystal vial filled with phosphorescent material)"},
-			&Components{Verb: false, Som: true, Mat: true, Matdesc: sql.NullString{
+		{
+			"S, M (text)",
+			fields{Verb: false, Som: true, Mat: true, Matdesc: sql.NullString{
 				String: "A glowing stick of incense or a crystal vial filled with phosphorescent material",
 				Valid:  true},
 			},
+			args{"S, M (a glowing stick of incense or a crystal vial filled with phosphorescent material)"},
 		},
 	}
 	for _, tt := range tests {
-		if got := parseComponents(tt.args.s); !reflect.DeepEqual(got, tt.want) {
-			t.Errorf("%q. parseComponents() %v, want %v", tt.name, got, tt.want)
+		c := &Components{
+			Verb:    tt.fields.Verb,
+			Som:     tt.fields.Som,
+			Mat:     tt.fields.Mat,
+			Matdesc: tt.fields.Matdesc,
 		}
+		c.parseComponents(tt.args.s)
 	}
 }
 
@@ -276,6 +296,105 @@ func TestXMLSpell_ToDbSpell(t *testing.T) {
 		if !reflect.DeepEqual(got, tt.want) {
 			spew.Dump(got, tt.want)
 			t.Errorf("%q. XMLSpell.ToDbSpell() = %v, want %v", tt.name, got, tt.want)
+		}
+	}
+}
+
+func TestXMLSpell_ParseClasses(t *testing.T) {
+	type fields struct {
+		Name       string
+		Level      string
+		School     string
+		Ritual     string
+		Time       string
+		Range      string
+		Components string
+		Duration   string
+		Classes    string
+		Texts      []string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   []Class
+		want1  bool
+	}{
+		{
+			"3 classes",
+			fields{
+				Classes: "Cleric, Cleric (Arcana), Druid",
+			},
+			[]Class{
+				Class{
+					ID:   2,
+					Name: "Cleric",
+					BaseClass: sql.NullInt64{
+						Int64: 0,
+						Valid: false,
+					},
+				},
+				Class{
+					ID:   3,
+					Name: "Cleric (Arcana)",
+					BaseClass: sql.NullInt64{
+						Int64: 2,
+						Valid: true,
+					},
+				},
+				Class{
+					ID:   12,
+					Name: "Druid",
+					BaseClass: sql.NullInt64{
+						Int64: 0,
+						Valid: false,
+					},
+				},
+			},
+			true,
+		},
+		{
+			"No classes",
+			fields{},
+			[]Class{},
+			false,
+		},
+		{
+			"One class",
+			fields{
+				Classes: "Bard",
+			},
+			[]Class{
+				Class{
+					ID:   1,
+					Name: "Bard",
+					BaseClass: sql.NullInt64{
+						Int64: 0,
+						Valid: false,
+					},
+				},
+			},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		x := &XMLSpell{
+			Name:       tt.fields.Name,
+			Level:      tt.fields.Level,
+			School:     tt.fields.School,
+			Ritual:     tt.fields.Ritual,
+			Time:       tt.fields.Time,
+			Range:      tt.fields.Range,
+			Components: tt.fields.Components,
+			Duration:   tt.fields.Duration,
+			Classes:    tt.fields.Classes,
+			Texts:      tt.fields.Texts,
+		}
+		got, got1 := x.ParseClasses()
+		if !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("%q. XMLSpell.ParseClasses() got = %v, want %v", tt.name, got, tt.want)
+		}
+		if got1 != tt.want1 {
+			t.Errorf("%q. XMLSpell.ParseClasses() got1 = %v, want %v", tt.name, got1, tt.want1)
 		}
 	}
 }

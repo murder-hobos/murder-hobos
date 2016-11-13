@@ -7,6 +7,9 @@ import (
 	"html"
 	"log"
 	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 )
 
 var (
@@ -22,6 +25,7 @@ var (
 		"N":  "Necromancy",
 		"T":  "Transmutation",
 	}
+	classes = make(map[string]Class)
 )
 
 const (
@@ -32,6 +36,28 @@ const (
 	// SCAGid is the Sword Coast Adventurer's guide id in our db
 	SCAGid = 3
 )
+
+func init() {
+	db, err := sqlx.Connect("mysql", "jaden:iforgot@tcp(localhost:3306)/CSCI_366")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	rows, err := db.Queryx("SELECT * FROM Class")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	for rows.Next() {
+		var c Class
+		err = rows.StructScan(&c)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		classes[c.Name] = c
+	}
+}
 
 // Compendium represents our top level <compendium> element
 type Compendium struct {
@@ -47,7 +73,6 @@ type Compendium struct {
 // that elements name. If it finds one, it assigns the value from that
 // element to our struct field.
 type XMLSpell struct {
-	//	XMLName    xml.Name `xml:"spell"`
 	Name       string   `xml:"name"`
 	Level      string   `xml:"level"`
 	School     string   `xml:"school"`
@@ -85,9 +110,9 @@ type Components struct {
 
 // Class represents our database Class table
 type Class struct {
-	ID        int    `db:"id"`
-	Name      string `db:"name"`
-	BaseClass int    `db:"base_class_id"`
+	ID        int           `db:"id"`
+	Name      string        `db:"name"`
+	BaseClass sql.NullInt64 `db:"base_class_id"`
 }
 
 // ToDbSpell parses the data from `x` into a new DbSpell object
@@ -97,8 +122,8 @@ func (x XMLSpell) ToDbSpell() (DbSpell, error) {
 	// vars we need to do a little work for
 	// to convert
 	var school, desc string
-	var comps *Components
 	var concentration, ritual bool
+	comps := &Components{}
 	// We probably could save this as a string, then look it up during insertion.
 	// Although then we wouldn't get the nice faculties and near autoinserts go
 	// gives us. So for now we hardcode sql id's
@@ -139,7 +164,7 @@ func (x XMLSpell) ToDbSpell() (DbSpell, error) {
 	}
 	desc = b.String()
 
-	comps = parseComponents(x.Components)
+	comps.parseComponents(x.Components)
 
 	// In the file, ritual will be either "" or "YES"
 	ritual = strings.Compare(x.Ritual, "YES") == 0
@@ -195,7 +220,7 @@ func toNullString(s string) sql.NullString {
 
 // Ugly situational parser
 // Parses info from a string and returns a Components struct
-func parseComponents(s string) *Components {
+func (c *Components) parseComponents(s string) {
 	var verb, som, mat bool
 	var matdesc sql.NullString
 
@@ -221,5 +246,24 @@ func parseComponents(s string) *Components {
 		matdesc = toNullString(cdesc)
 	}
 
-	return &Components{verb, som, mat, matdesc}
+	c.Verb = verb
+	c.Som = som
+	c.Mat = mat
+	c.Matdesc = matdesc
+}
+
+// ParseClasses converts the XMLSpell's string of comma seperated
+// classes into a slice of Class objects fully initialized with
+// ID and BaseClass values, ready to be inserted into our db.
+func (x *XMLSpell) ParseClasses() ([]Class, bool) {
+	cs := []Class{}
+	split := strings.Split(x.Classes, ", ")
+	for _, s := range split {
+		if c, ok := classes[s]; ok {
+			cs = append(cs, c)
+		} else {
+			return []Class{}, false
+		}
+	}
+	return cs, true
 }
