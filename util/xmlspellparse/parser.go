@@ -3,7 +3,6 @@ package xmlspellparse
 import (
 	"bytes"
 	"database/sql"
-	"encoding/xml"
 	"errors"
 	"html"
 	"log"
@@ -25,9 +24,18 @@ var (
 	}
 )
 
+const (
+	// PHBid is the Player's Handbook id in our db
+	PHBid = 1
+	// EEid is the Elemental Evil id in our db
+	EEid = 2
+	// SCAGid is the Sword Coast Adventurer's guide id in our db
+	SCAGid = 3
+)
+
 // Compendium represents our top level <compendium> element
 type Compendium struct {
-	XMLSpell []XMLSpell `xml:"spell"`
+	XMLSpells []XMLSpell `xml:"spell"`
 }
 
 // XMLSpell represents a <spell> element from our xml file
@@ -39,7 +47,7 @@ type Compendium struct {
 // that elements name. If it finds one, it assigns the value from that
 // element to our struct field.
 type XMLSpell struct {
-	XMLName    xml.Name `xml:"spell"`
+	//	XMLName    xml.Name `xml:"spell"`
 	Name       string   `xml:"name"`
 	Level      string   `xml:"level"`
 	School     string   `xml:"school"`
@@ -82,28 +90,37 @@ type Class struct {
 	BaseClass int    `db:"base_class_id"`
 }
 
-func (d *DbSpell) FromXMLSpell(x *XMLSpell) error {
+// ToDbSpell parses the data from `x` into a new DbSpell object
+// which it returns, along with an error. In the event of an error,
+// a zero-valued DbSpell is returned.
+func (x XMLSpell) ToDbSpell() (DbSpell, error) {
 	// vars we need to do a little work for
 	// to convert
 	var school, desc string
 	var comps *Components
 	var concentration, ritual bool
+	// We probably could save this as a string, then look it up during insertion.
+	// Although then we wouldn't get the nice faculties and near autoinserts go
+	// gives us. So for now we hardcode sql id's
+	sourceID := PHBid //default to phb
 
-	// We're not worrying about EE spells right now
 	if strings.Contains(x.Name, "(EE)") {
-		return errors.New("Elemental Evil spell")
+		sourceID = EEid
+	}
+	if strings.Contains(x.Name, "(SCAG)") {
+		sourceID = SCAGid
 	}
 
 	// We want the long version, not the abbreviation
 	if s, ok := schools[x.School]; ok {
 		school = s
 	} else {
-		return errors.New("Not in schools map")
+		return DbSpell{}, errors.New("Not in schools map")
 	}
 
 	var b bytes.Buffer
 
-	// Texts is an index of strings, which conveniently map
+	// Texts is a slice of strings, which conveniently map
 	// to paragraphs in the spell description text. The file
 	// uses <text/> elements as line breaks, but we ignore
 	// them here because we'll be rendering in html,
@@ -127,22 +144,21 @@ func (d *DbSpell) FromXMLSpell(x *XMLSpell) error {
 	// In the file, ritual will be either "" or "YES"
 	ritual = strings.Compare(x.Ritual, "YES") == 0
 
-	d.Name = x.Name
-	d.Level = x.Level
-	d.School = school
-	d.CastTime = x.Time
-	d.Duration = x.Duration
-	d.Range = x.Range
-	d.Components = comps
-	d.Concentration = concentration
-	d.Ritual = ritual
-	d.Description = desc
-	// EEEEWEWEWEWEWEWEEEEEEEEEEEWWWWWWWWWWWW
-	// Hard coding in PHB as user with ID 1 right now
-	// I may hate myself for it later.
-	d.SourceID = 1
+	d := DbSpell{
+		Name:          x.Name,
+		Level:         x.Level,
+		School:        school,
+		CastTime:      x.Time,
+		Duration:      x.Duration,
+		Range:         x.Range,
+		Components:    comps,
+		Concentration: concentration,
+		Ritual:        ritual,
+		Description:   desc,
+		SourceID:      sourceID,
+	}
 
-	return nil
+	return d, nil
 }
 
 // Surround places `start` and the beginning and `end` at the end of
