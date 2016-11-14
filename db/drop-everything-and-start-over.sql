@@ -1,19 +1,13 @@
 SET foreign_key_checks = 0;
-DROP TABLE IF EXISTS SourceText, Spell, Class, `User`, ClassSpells, CharacterLevels, `Character`, CharacterSpells;
+DROP TABLE IF EXISTS `User`, Spell, Class, ClassSpells, CharacterLevels, `Character`;
 SET foreign_key_checks = 1;
 
 -- Create tables for murder-hobos
 
---CREATE TABLE SourceText (
---    id                    INT UNSIGNED AUTO_INCREMENT,
---    `title`               VARCHAR(100) NOT NULL,
---    PRIMARY KEY(id)
---);
-
 CREATE TABLE User (
     id                  INT UNSIGNED AUTO_INCREMENT,
     username            VARCHAR(60) NOT NULL,
-    password            CHAR(60) NOT NULL,
+    password            CHAR(60) NOT NULL, -- bcrypt hash length
     PRIMARY KEY(id)
 );
 
@@ -36,7 +30,7 @@ CREATE TABLE Spell (
     comp_verbal         BOOLEAN NOT NULL,
     comp_somatic        BOOLEAN NOT NULL,
     comp_material       BOOLEAN NOT NULL,
-    material_desc       TEXT NOT NULL,
+    material_desc       TEXT,
     concentration       BOOLEAN,
     ritual              BOOLEAN,
     description         TEXT NOT NULL,
@@ -55,14 +49,6 @@ CREATE TABLE `Character`(
     PRIMARY KEY(id),
     FOREIGN KEY(user_id) REFERENCES User(id) ON DELETE CASCADE
 );
-
---CREATE TABLE CharacterSpells(
---    char_id             INT UNSIGNED NOT NULL,
---    spell_id            INT UNSIGNED NOT NULL,
---    PRIMARY KEY(char_id, spell_id),
---    FOREIGN KEY(char_id) REFERENCES `Character`(id) ON DELETE CASCADE,
---    FOREIGN KEY(spell_id) REFERENCES Spell(id)
---);
 
 CREATE TABLE CharacterLevels(
     char_id             INT UNSIGNED,
