@@ -133,8 +133,8 @@ func Test_toNullString(t *testing.T) {
 		args args
 		want sql.NullString
 	}{
-		{"Should be valid", args{"valid"}, sql.NullString{"valid", true}},
-		{"Should be invalid", args{""}, sql.NullString{"", false}},
+		{"Should be valid", args{"valid"}, sql.NullString{String: "valid", Valid: true}},
+		{"Should be invalid", args{""}, sql.NullString{String: "", Valid: false}},
 	}
 	for _, tt := range tests {
 		if got := toNullString(tt.args.s); !reflect.DeepEqual(got, tt.want) {
@@ -370,6 +370,47 @@ func TestXMLSpell_ParseClasses(t *testing.T) {
 					BaseClass: sql.NullInt64{
 						Int64: 0,
 						Valid: false,
+					},
+				},
+			},
+			true,
+		},
+		{
+			"Absorb Elements (EE)",
+			fields{
+				Classes: "Druid, Ranger, Wizard, Fighter (Eldritch Knight)",
+			},
+			[]Class{
+				Class{
+					ID:   12,
+					Name: "Druid",
+					BaseClass: sql.NullInt64{
+						Int64: 0,
+						Valid: false,
+					},
+				},
+				Class{
+					ID:   27,
+					Name: "Ranger",
+					BaseClass: sql.NullInt64{
+						Int64: 0,
+						Valid: false,
+					},
+				},
+				Class{
+					ID:   34,
+					Name: "Wizard",
+					BaseClass: sql.NullInt64{
+						Int64: 0,
+						Valid: false,
+					},
+				},
+				Class{
+					ID:   36,
+					Name: "Fighter (Eldritch Knight)",
+					BaseClass: sql.NullInt64{
+						Int64: 35,
+						Valid: true,
 					},
 				},
 			},

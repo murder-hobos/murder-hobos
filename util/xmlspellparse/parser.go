@@ -7,9 +7,6 @@ import (
 	"html"
 	"log"
 	"strings"
-
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
 )
 
 var (
@@ -25,6 +22,11 @@ var (
 		"N":  "Necromancy",
 		"T":  "Transmutation",
 	}
+	// Classes is here to make looking up class info easier.
+	// It will be initialized straight from our db in this package's
+	// init method.
+	// Elements are of the form:
+	// 		"ClassName:ClassStruct"
 	classes = make(map[string]Class)
 )
 
@@ -38,19 +40,20 @@ const (
 )
 
 func init() {
-	db, err := sqlx.Connect("mysql", "jaden:iforgot@tcp(localhost:3306)/CSCI_366")
+	db, err := InitDB()
+	defer db.Close()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	rows, err := db.Queryx("SELECT * FROM Class")
+	cs, err := db.Queryx("SELECT * FROM Class")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	for rows.Next() {
+	for cs.Next() {
 		var c Class
-		err = rows.StructScan(&c)
+		err = cs.StructScan(&c)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -113,6 +116,12 @@ type Class struct {
 	ID        int           `db:"id"`
 	Name      string        `db:"name"`
 	BaseClass sql.NullInt64 `db:"base_class_id"`
+}
+
+// ClassSpells represents our db's ClassSpells table.
+type ClassSpells struct {
+	ClassID int `db:"class_id"`
+	SpellID int `db:"spell_id"`
 }
 
 // ToDbSpell parses the data from `x` into a new DbSpell object
