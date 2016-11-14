@@ -25,7 +25,7 @@ INSERT INTO Class(id, name, base_class_id) VALUES
        (21, "Paladin", NULL),
        (22, "Paladin (Ancients)", 21),
        (23, "Paladin (Devotion)", 21),
-       (24, "Paladin (Vengence)", 21),
+       (24, "Paladin (Vengeance)", 21),
        (25, "Paladin (Oathbreaker)", 21),
        (26, "Paladin (Crown)", 21),
        (27, "Ranger", NULL),
@@ -35,7 +35,11 @@ INSERT INTO Class(id, name, base_class_id) VALUES
        (31, "Warlock (Fiend)", 29),
        (32, "Warlock (Great Old One)", 29),
        (33, "Warlock (Undying)", 29),
-       (34, "Wizard", NULL)
+       (34, "Wizard", NULL),
+       (35, "Fighter", NULL),
+       (36, "Fighter (Eldritch Knight)", 35),
+       (37, "Rogue", NULL),
+       (38, "Rogue (Arcane Trickster)", 37)
 ;
 
 
