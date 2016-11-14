@@ -1,5 +1,5 @@
 vendor/
 Godeps/Readme
 .env
-config/config.json
 util/xmlspellparse/.vscode
+util/xmlspellparse/config.json
