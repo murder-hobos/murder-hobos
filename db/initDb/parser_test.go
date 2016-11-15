@@ -1,4 +1,4 @@
-package xmlspellparse
+package initDb
 
 import (
 	"database/sql"
@@ -8,169 +8,8 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jaden-young/murder-hobos/model"
 )
-
-func TestComponents_parseComponents(t *testing.T) {
-	type fields struct {
-		Verb    bool
-		Som     bool
-		Mat     bool
-		Matdesc sql.NullString
-	}
-	type args struct {
-		s string
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-	}{
-		{
-			"V",
-			fields{Verb: true, Som: false, Mat: false, Matdesc: sql.NullString{
-				String: "",
-				Valid:  false},
-			},
-			args{"V"},
-		},
-		{
-			"V, S",
-			fields{Verb: true, Som: true, Mat: false, Matdesc: sql.NullString{
-				String: "",
-				Valid:  false},
-			},
-			args{"V, S"},
-		},
-		{
-			"V, S, M",
-			fields{Verb: true, Som: true, Mat: true, Matdesc: sql.NullString{
-				String: "",
-				Valid:  false},
-			},
-			args{"V, S, M"},
-		},
-		{
-			"V, S, M (text)",
-			fields{Verb: true, Som: true, Mat: true, Matdesc: sql.NullString{
-				String: "A jade circlet worth at least 1,500 gp, which you must place on your head before you cast the spell",
-				Valid:  true},
-			},
-			args{"V, S, M (a jade circlet worth at least 1,500 gp, which you must place on your head before you cast the spell)"},
-		},
-
-		{
-			"S",
-			fields{Verb: false, Som: true, Mat: false, Matdesc: sql.NullString{
-				String: "",
-				Valid:  false},
-			},
-			args{"S"},
-		},
-		{
-			"V, M (text)",
-			fields{Verb: true, Som: false, Mat: true, Matdesc: sql.NullString{
-				String: "Bat fur and a drop of pitch or piece of coal",
-				Valid:  true},
-			},
-			args{"V, M (bat fur and a drop of pitch or piece of coal)"},
-		},
-		{
-			"S, M",
-			fields{Verb: false, Som: true, Mat: true, Matdesc: sql.NullString{
-				String: "",
-				Valid:  false},
-			},
-			args{"S, M"},
-		},
-		{
-			"S, M (text)",
-			fields{Verb: false, Som: true, Mat: true, Matdesc: sql.NullString{
-				String: "A glowing stick of incense or a crystal vial filled with phosphorescent material",
-				Valid:  true},
-			},
-			args{"S, M (a glowing stick of incense or a crystal vial filled with phosphorescent material)"},
-		},
-	}
-	for _, tt := range tests {
-		c := &Components{
-			Verb:    tt.fields.Verb,
-			Som:     tt.fields.Som,
-			Mat:     tt.fields.Mat,
-			Matdesc: tt.fields.Matdesc,
-		}
-		c.parseComponents(tt.args.s)
-	}
-}
-
-func Test_capitalizeAtIndex(t *testing.T) {
-	type args struct {
-		s string
-		i int
-	}
-	tests := []struct {
-		name  string
-		args  args
-		swant string
-		bwant bool
-	}{
-		{"First", args{"bill", 0}, "Bill", true},
-		{"Negative index", args{"asdf", -1}, "asdf", false},
-		{"Index too big", args{"qwert", 5}, "qwert", false},
-	}
-	for _, tt := range tests {
-		if sgot, bgot := capitalizeAtIndex(tt.args.s, tt.args.i); sgot != tt.swant || bgot != tt.bwant {
-			t.Errorf("%q. capitalizeAtIndex() = %v, %v, want %v, %v", tt.name, sgot, bgot, tt.swant, tt.bwant)
-		}
-	}
-}
-
-func Test_toNullString(t *testing.T) {
-	type args struct {
-		s string
-	}
-	tests := []struct {
-		name string
-		args args
-		want sql.NullString
-	}{
-		{"Should be valid", args{"valid"}, sql.NullString{String: "valid", Valid: true}},
-		{"Should be invalid", args{""}, sql.NullString{String: "", Valid: false}},
-	}
-	for _, tt := range tests {
-		if got := toNullString(tt.args.s); !reflect.DeepEqual(got, tt.want) {
-			t.Errorf("%q. toNullString() = %v, want %v", tt.name, got, tt.want)
-		}
-	}
-}
-
-func Test_surround(t *testing.T) {
-	type args struct {
-		original string
-		start    string
-		end      string
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{
-			"Paragraph tags",
-			args{"spell description", "<p>", "</p>"},
-			"&lt;p&gt;spell description&lt;/p&gt;",
-		},
-		{
-			"No start/end",
-			args{"textextext", "", ""},
-			"textextext",
-		},
-	}
-	for _, tt := range tests {
-		if got := surround(tt.args.original, tt.args.start, tt.args.end); got != tt.want {
-			t.Errorf("%q. Surround() = %v, want %v", tt.name, got, tt.want)
-		}
-	}
-}
 
 func TestXMLSpell_ToDbSpell(t *testing.T) {
 	type fields struct {
@@ -189,7 +28,7 @@ func TestXMLSpell_ToDbSpell(t *testing.T) {
 	tests := []struct {
 		name    string
 		fields  fields
-		want    DbSpell
+		want    model.Spell
 		wantErr bool
 	}{
 		{
@@ -209,21 +48,19 @@ func TestXMLSpell_ToDbSpell(t *testing.T) {
 					"An affected creature is aware of the spell and can thus avoid answering questions to which it would normally respond with a lie. Such creatures can be evasive in its answers as long as it remains within the boundaries of the truth.",
 				},
 			},
-			DbSpell{
+			model.Spell{
 				Name:     "Zone of Truth",
 				Level:    "2",
 				School:   "Enchantment",
 				CastTime: "1 action",
 				Duration: "10 minutes",
 				Range:    "60 feet",
-				Components: &Components{
-					Verb: true,
-					Som:  true,
-					Mat:  true,
-					Matdesc: sql.NullString{
-						String: "",
-						Valid:  false,
-					},
+				Verbal:   true,
+				Somatic:  true,
+				Material: true,
+				MaterialDesc: sql.NullString{
+					String: "",
+					Valid:  false,
 				},
 				Concentration: false,
 				Ritual:        false,
@@ -251,21 +88,19 @@ func TestXMLSpell_ToDbSpell(t *testing.T) {
 					"This spell can be found in the Elemental Evil Player's Companion",
 				},
 			},
-			DbSpell{
+			model.Spell{
 				Name:     "Absorb Elements (EE)",
 				Level:    "1",
 				School:   "Abjuration",
 				CastTime: "1 reaction, which you take when you take acid, cold, fire, lightning, or thunder damage",
 				Duration: "1 round",
 				Range:    "",
-				Components: &Components{
-					Verb: false,
-					Som:  true,
-					Mat:  false,
-					Matdesc: sql.NullString{
-						String: "",
-						Valid:  false,
-					},
+				Verbal:   false,
+				Somatic:  true,
+				Material: false,
+				MaterialDesc: sql.NullString{
+					String: "",
+					Valid:  false,
 				},
 				Concentration: false,
 				Ritual:        false,
@@ -316,7 +151,7 @@ func TestXMLSpell_ParseClasses(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
-		want   []Class
+		want   []model.Class
 		want1  bool
 	}{
 		{
@@ -324,8 +159,8 @@ func TestXMLSpell_ParseClasses(t *testing.T) {
 			fields{
 				Classes: "Cleric, Cleric (Arcana), Druid",
 			},
-			[]Class{
-				Class{
+			[]model.Class{
+				model.Class{
 					ID:   2,
 					Name: "Cleric",
 					BaseClass: sql.NullInt64{
@@ -333,7 +168,7 @@ func TestXMLSpell_ParseClasses(t *testing.T) {
 						Valid: false,
 					},
 				},
-				Class{
+				model.Class{
 					ID:   3,
 					Name: "Cleric (Arcana)",
 					BaseClass: sql.NullInt64{
@@ -341,7 +176,7 @@ func TestXMLSpell_ParseClasses(t *testing.T) {
 						Valid: true,
 					},
 				},
-				Class{
+				model.Class{
 					ID:   12,
 					Name: "Druid",
 					BaseClass: sql.NullInt64{
@@ -355,7 +190,7 @@ func TestXMLSpell_ParseClasses(t *testing.T) {
 		{
 			"No classes",
 			fields{},
-			[]Class{},
+			[]model.Class{},
 			false,
 		},
 		{
@@ -363,8 +198,8 @@ func TestXMLSpell_ParseClasses(t *testing.T) {
 			fields{
 				Classes: "Bard",
 			},
-			[]Class{
-				Class{
+			[]model.Class{
+				model.Class{
 					ID:   1,
 					Name: "Bard",
 					BaseClass: sql.NullInt64{
@@ -380,8 +215,8 @@ func TestXMLSpell_ParseClasses(t *testing.T) {
 			fields{
 				Classes: "Druid, Ranger, Wizard, Fighter (Eldritch Knight)",
 			},
-			[]Class{
-				Class{
+			[]model.Class{
+				model.Class{
 					ID:   12,
 					Name: "Druid",
 					BaseClass: sql.NullInt64{
@@ -389,7 +224,7 @@ func TestXMLSpell_ParseClasses(t *testing.T) {
 						Valid: false,
 					},
 				},
-				Class{
+				model.Class{
 					ID:   27,
 					Name: "Ranger",
 					BaseClass: sql.NullInt64{
@@ -397,7 +232,7 @@ func TestXMLSpell_ParseClasses(t *testing.T) {
 						Valid: false,
 					},
 				},
-				Class{
+				model.Class{
 					ID:   34,
 					Name: "Wizard",
 					BaseClass: sql.NullInt64{
@@ -405,7 +240,7 @@ func TestXMLSpell_ParseClasses(t *testing.T) {
 						Valid: false,
 					},
 				},
-				Class{
+				model.Class{
 					ID:   36,
 					Name: "Fighter (Eldritch Knight)",
 					BaseClass: sql.NullInt64{
@@ -436,6 +271,110 @@ func TestXMLSpell_ParseClasses(t *testing.T) {
 		}
 		if got1 != tt.want1 {
 			t.Errorf("%q. XMLSpell.ParseClasses() got1 = %v, want %v", tt.name, got1, tt.want1)
+		}
+	}
+}
+
+func TestXMLSpell_parseComponents(t *testing.T) {
+	type fields struct {
+		Name       string
+		Level      string
+		School     string
+		Ritual     string
+		Time       string
+		Range      string
+		Components string
+		Duration   string
+		Classes    string
+		Texts      []string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   Components
+	}{
+
+		{
+			"V",
+			fields{Components: "V"},
+			Components{Verb: true, Som: false, Mat: false, Matdesc: sql.NullString{
+				String: "",
+				Valid:  false},
+			},
+		},
+		{
+			"V, S",
+			fields{Components: "V, S"},
+			Components{Verb: true, Som: true, Mat: false, Matdesc: sql.NullString{
+				String: "",
+				Valid:  false},
+			},
+		},
+		{
+			"V, S, M",
+			fields{Components: "V, S, M"},
+			Components{Verb: true, Som: true, Mat: true, Matdesc: sql.NullString{
+				String: "",
+				Valid:  false},
+			},
+		},
+		{
+			"V, S, M (text)",
+			fields{Components: "V, S, M (a jade circlet worth at least 1,500 gp, which you must place on your head before you cast the spell)"},
+			Components{Verb: true, Som: true, Mat: true, Matdesc: sql.NullString{
+				String: "A jade circlet worth at least 1,500 gp, which you must place on your head before you cast the spell",
+				Valid:  true},
+			},
+		},
+
+		{
+			"S",
+			fields{Components: "S"},
+			Components{Verb: false, Som: true, Mat: false, Matdesc: sql.NullString{
+				String: "",
+				Valid:  false},
+			},
+		},
+		{
+			"V, M (text)",
+			fields{Components: "V, M (bat fur and a drop of pitch or piece of coal)"},
+			Components{Verb: true, Som: false, Mat: true, Matdesc: sql.NullString{
+				String: "Bat fur and a drop of pitch or piece of coal",
+				Valid:  true},
+			},
+		},
+		{
+			"S, M",
+			fields{Components: "S, M"},
+			Components{Verb: false, Som: true, Mat: true, Matdesc: sql.NullString{
+				String: "",
+				Valid:  false},
+			},
+		},
+		{
+			"S, M (text)",
+			fields{Components: "S, M (a glowing stick of incense or a crystal vial filled with phosphorescent material)"},
+			Components{Verb: false, Som: true, Mat: true, Matdesc: sql.NullString{
+				String: "A glowing stick of incense or a crystal vial filled with phosphorescent material",
+				Valid:  true},
+			},
+		},
+	}
+	for _, tt := range tests {
+		x := &XMLSpell{
+			Name:       tt.fields.Name,
+			Level:      tt.fields.Level,
+			School:     tt.fields.School,
+			Ritual:     tt.fields.Ritual,
+			Time:       tt.fields.Time,
+			Range:      tt.fields.Range,
+			Components: tt.fields.Components,
+			Duration:   tt.fields.Duration,
+			Classes:    tt.fields.Classes,
+			Texts:      tt.fields.Texts,
+		}
+		if got := x.parseComponents(); !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("%q. XMLSpell.parseComponents() = %v, want %v", tt.name, got, tt.want)
 		}
 	}
 }

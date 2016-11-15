@@ -1,8 +1,0 @@
-{
-    "User": "user",
-    "Passwd": "password",
-    "Net": "tcp",
-    "Addr": "ip:port",
-    "DBName": "my_db",
-    "MultiStatements": "false"
-}
