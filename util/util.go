@@ -4,7 +4,6 @@ package util
 import (
 	"bytes"
 	"database/sql"
-	"html"
 	"strings"
 )
 
@@ -29,7 +28,7 @@ func CapitalizeAtIndex(s string, i int) (string, bool) {
 }
 
 // Surround places `start` and the beginning and `end` at the end of
-// an `original` string. Html characters are escaped.
+// an `original` string.
 func Surround(original, start, end string) string {
 	var b bytes.Buffer
 
@@ -37,5 +36,5 @@ func Surround(original, start, end string) string {
 	b.Write([]byte(original))
 	b.Write([]byte(end))
 
-	return html.EscapeString(b.String())
+	return b.String()
 }

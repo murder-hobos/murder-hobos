@@ -7,6 +7,8 @@ import (
 	"log"
 	"strings"
 
+	"html"
+
 	"github.com/jaden-young/murder-hobos/model"
 	"github.com/jaden-young/murder-hobos/util"
 )
@@ -99,15 +101,16 @@ func (x *XMLSpell) ToDbSpell() (model.Spell, error) {
 
 	var b bytes.Buffer
 
-	// Texts is a slice of strings, which conveniently map
-	// to paragraphs in the spell description text. The file
-	// uses <text/> elements as line breaks, but we ignore
-	// them here because we'll be rendering in html,
-	// so <p> tags arround paragraphs will be ideal. Also
-	// note that we are storing escaped html into our db.
+	// The texts slice holds a slice of strings representing the spell
+	// description from the xml file. <text/> elements are used in the file
+	// to create newlines, here we replace them with <br/> to render
+	// correctly in html.
 	for _, text := range x.Texts {
+		if text == "" {
+			b.Write([]byte("<br/>"))
+		}
 		if text != "" {
-			b.Write([]byte(util.Surround(text, "<p>", "</p>")))
+			b.Write([]byte(html.EscapeString(text)))
 		}
 		// This is dirty, but the file doesn't have a field
 		// for concentation, only way to find it is to see
@@ -158,7 +161,7 @@ func (x *XMLSpell) parseComponents() Components {
 	// Index returns -1 if not present
 	i := strings.Index(x.Components, "(")
 	if i > -1 {
-		// Trim off parens
+		// extract "inside parens" from "text text (inside parens)"
 		desc := x.Components[i+1 : len(x.Components)-1]
 
 		// Descriptions are all lower case, make them look prettier
