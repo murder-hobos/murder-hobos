@@ -84,7 +84,7 @@ func dataSpellsCompendium121Xml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/Spells Compendium 1.2.1.xml", size: 484962, mode: os.FileMode(493), modTime: time.Unix(1479180876, 0)}
+	info := bindataFileInfo{name: "data/Spells Compendium 1.2.1.xml", size: 484962, mode: os.FileMode(493), modTime: time.Unix(1479185791, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -104,7 +104,7 @@ func dataDropEverythingAndStartOverSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/drop-everything-and-start-over.sql", size: 3883, mode: os.FileMode(420), modTime: time.Unix(1479180879, 0)}
+	info := bindataFileInfo{name: "data/drop-everything-and-start-over.sql", size: 3883, mode: os.FileMode(420), modTime: time.Unix(1479185791, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
