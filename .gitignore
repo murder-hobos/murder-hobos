@@ -1,5 +1,4 @@
 vendor/
 Godeps/Readme
 .env
-util/xmlspellparse/.vscode
-util/xmlspellparse/config.json
+db/initDb/cmd/murder-hobos-init-db/murder-hobos-init-db
