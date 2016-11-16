@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"strings"
 
 	gmux "github.com/gorilla/mux"
 )
@@ -63,7 +64,7 @@ func New() *gmux.Router {
 	r := gmux.NewRouter()
 
 	r.HandleFunc("/", indexHandler)
-	r.PathPrefix("/static").Handler(staticHandler)
+	r.PathPrefix("/static").HandlerFunc(staticHandler)
 	return r
 }
 
@@ -75,5 +76,10 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// serves static files (css/js)
-var staticHandler = http.StripPrefix("/static", http.FileServer(http.Dir("./static")))
+func staticHandler(w http.ResponseWriter, r *http.Request) {
+	// Disable listing directories
+	if strings.HasSuffix(r.URL.Path, "/") {
+		http.Error(w, "File not found", http.StatusBadRequest)
+	}
+	http.ServeFile(w, r, r.URL.Path[1:])
+}

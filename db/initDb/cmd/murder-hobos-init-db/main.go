@@ -106,7 +106,9 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	db.MustExec(dropEverythingAndInitialize)
+	if _, err := db.Exec(dropEverythingAndInitialize); err != nil {
+		log.Fatalln(err)
+	}
 
 	// Have to be silly about this because range is a reserved word
 	insertSpell, err := db.PrepareNamed(`
