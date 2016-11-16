@@ -40,14 +40,19 @@ func Test_Surround(t *testing.T) {
 		want string
 	}{
 		{
-			"Paragraph tags",
-			args{"spell description", "<p>", "</p>"},
-			"&lt;p&gt;spell description&lt;/p&gt;",
+			"Start, not end",
+			args{"spell description", "first", ""},
+			"firstspell description",
 		},
 		{
 			"No start/end",
 			args{"textextext", "", ""},
 			"textextext",
+		},
+		{
+			"end, not start",
+			args{"basetext", "", "end"},
+			"basetextend",
 		},
 	}
 	for _, tt := range tests {

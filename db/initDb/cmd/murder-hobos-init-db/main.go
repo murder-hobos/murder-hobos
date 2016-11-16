@@ -55,12 +55,16 @@ func confirm() bool {
 	color.Unset()
 	fmt.Println("All data in database will be erased and replaced with starting data.")
 	fmt.Println("That means user data too.")
-	fmt.Print("Are you sure you want to continue? [Y\\n] ")
+	fmt.Print("Are you sure you want to continue? [y\\N] ")
 
 	var resp string
 	_, err := fmt.Scanln(&resp)
 	if err != nil {
-		log.Fatalln(err)
+		if err.Error() == "unexpected newline" {
+			os.Exit(0)
+		} else {
+			log.Fatalln(err)
+		}
 	}
 	return resp == "Y" || resp == "y"
 }
