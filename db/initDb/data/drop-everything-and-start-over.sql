@@ -21,12 +21,12 @@ CREATE TABLE Class (
 
 CREATE TABLE Spell (
     id                  INT UNSIGNED AUTO_INCREMENT,
-    name                VARCHAR(50) NOT NULL,
+    name                VARCHAR(255) NOT NULL,
     level               CHAR(1)     NOT NULL,
-    school              VARCHAR(50) NOT NULL,
-    cast_time           VARCHAR(50) NOT NULL,
-    duration            VARCHAR(50) NOT NULL,
-    `range`             VARCHAR(50) NOT NULL,
+    school              VARCHAR(255) NOT NULL,
+    cast_time           VARCHAR(255) NOT NULL,
+    duration            VARCHAR(255) NOT NULL,
+    `range`             VARCHAR(255) NOT NULL,
     comp_verbal         BOOLEAN NOT NULL,
     comp_somatic        BOOLEAN NOT NULL,
     comp_material       BOOLEAN NOT NULL,
@@ -41,8 +41,8 @@ CREATE TABLE Spell (
 
 CREATE TABLE `Character`(
     id                     INT UNSIGNED AUTO_INCREMENT,
-    name                   VARCHAR(60) NOT NULL,
-    race                   VARCHAR(15) NULL,
+    name                   VARCHAR(255) NOT NULL,
+    race                   VARCHAR(255) NULL,
     spell_ability_modifier INT NULL,
     proficiency_bonus      INT NULL,
     user_id                INT UNSIGNED NOT NULL,

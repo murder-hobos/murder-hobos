@@ -90,7 +90,7 @@ func main() {
 		// Don't echo password out
 		pass, err := terminal.ReadPassword(0)
 		if err != nil {
-			log.Fatalln("Couldn't read password. This shouldn't happen.")
+			log.Fatalln("Fine. Don't enter a password. Bye.")
 		}
 		passwd = string(pass)
 		fmt.Println()

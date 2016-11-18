@@ -107,7 +107,7 @@ func (x *XMLSpell) ToDbSpell() (model.Spell, error) {
 	// correctly in html.
 	for _, text := range x.Texts {
 		if text == "" {
-			b.Write([]byte("<br/>"))
+			b.Write([]byte("<br/><br/>"))
 		}
 		if text != "" {
 			b.Write([]byte(html.EscapeString(text)))

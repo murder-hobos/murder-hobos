@@ -1,1 +1,1 @@
-web: murder-hobos
+web: murder-hobos-server
