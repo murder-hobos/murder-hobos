@@ -38,3 +38,19 @@ func Surround(original, start, end string) string {
 
 	return b.String()
 }
+
+// Intersperse inserts `inter` inbetween each character of `original`
+// `inter` is not placed at the beginning nor end of `original`
+func Intersperse(original, intr string) string {
+	if original == "" || intr == "" || len(original) == 1 {
+		return original
+	}
+	b := &bytes.Buffer{}
+	for _, c := range original {
+		b.WriteRune(c)
+		b.WriteString(intr)
+	}
+	bs := b.Bytes()
+	// trim off last intr
+	return string(bytes.TrimRight(bs, intr))
+}
