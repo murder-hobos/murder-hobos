@@ -190,7 +190,7 @@ func (x *XMLSpell) ParseClasses() ([]model.Class, bool) {
 	for _, s := range split {
 		// here Classes is a map found in classes.go
 		// not in this file because it's long and ugly
-		if c, ok := model.Classes[s]; ok {
+		if c, ok := Classes[s]; ok {
 			cs = append(cs, c)
 		} else {
 			return []model.Class{}, false
@@ -200,6 +200,6 @@ func (x *XMLSpell) ParseClasses() ([]model.Class, bool) {
 }
 
 func trimSourceFromName(name string) string {
-	s := strings.NewReplacer("(EE)", "", "(SCAG)", "")
+	s := strings.NewReplacer(" (EE)", "", " (SCAG)", "")
 	return s.Replace(name)
 }
