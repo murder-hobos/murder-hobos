@@ -126,7 +126,7 @@ func (x *XMLSpell) ToDbSpell() (model.Spell, error) {
 	ritual = strings.Compare(x.Ritual, "YES") == 0
 
 	d := model.Spell{
-		Name:          x.Name,
+		Name:          trimSourceFromName(x.Name),
 		Level:         x.Level,
 		School:        school,
 		CastTime:      x.Time,
@@ -197,4 +197,9 @@ func (x *XMLSpell) ParseClasses() ([]model.Class, bool) {
 		}
 	}
 	return cs, true
+}
+
+func trimSourceFromName(name string) string {
+	s := strings.NewReplacer("(EE)", "", "(SCAG)", "")
+	return s.Replace(name)
 }
