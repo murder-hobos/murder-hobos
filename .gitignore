@@ -2,3 +2,4 @@ vendor/
 Godeps/Readme
 .env
 db/initDb/cmd/murder-hobos-init-db/murder-hobos-init-db
+db/initDb/cmd/murder-hobos-init-db/murder-hobos-init-db.exe
