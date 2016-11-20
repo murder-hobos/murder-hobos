@@ -180,3 +180,72 @@ func TestIntersperse(t *testing.T) {
 		}
 	}
 }
+
+func TestURLToCapsAndSpaces(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			"acid-splash",
+			args{"acid-splash"},
+			"Acid Splash",
+		},
+		{
+			"Already capitalized",
+			args{"Already-Capitalized"},
+			"Already Capitalized",
+		},
+		{
+			"big huge chain",
+			args{"hey-this-test-should-work"},
+			"Hey This Test Should Work",
+		},
+	}
+	for _, tt := range tests {
+		if got := URLToCapsAndSpaces(tt.args.s); got != tt.want {
+			t.Errorf("%q. URLToCapsAndSpaces() = %v, want %v", tt.name, got, tt.want)
+		}
+	}
+}
+
+func TestFormatURL(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			"Acid Splash",
+			args{"Acid Splash"},
+			"acid-splash",
+		},
+		{
+			"Empty string",
+			args{""},
+			"",
+		},
+		{
+			"already-formatted",
+			args{"already-formatted"},
+			"already-formatted",
+		},
+		{
+			"Big Long Chain",
+			args{"Big Long Chain"},
+			"big-long-chain",
+		},
+	}
+	for _, tt := range tests {
+		if got := FormatURL(tt.args.s); got != tt.want {
+			t.Errorf("%q. FormatURL() = %v, want %v", tt.name, got, tt.want)
+		}
+	}
+}

@@ -54,3 +54,18 @@ func Intersperse(original, intr string) string {
 	// trim off last intr
 	return string(bytes.TrimRight(bs, intr))
 }
+
+// URLToCapsAndSpaces (horrible name, I just can't think of
+// a more descriptive one) converts a string of the form
+// `acid-splash` to `Acid Splash`
+func URLToCapsAndSpaces(s string) string {
+	spaces := strings.Replace(s, "-", " ", -1)
+	return strings.Title(spaces)
+}
+
+// FormatURL converts a string of the form
+// `Acid Splash` to `acid-splash`
+func FormatURL(s string) string {
+	lower := strings.ToLower(s)
+	return strings.Replace(lower, " ", "-", -1)
+}
