@@ -38,11 +38,6 @@ const (
 	SCAGid = 3
 )
 
-// Compendium represents our top level <compendium> element
-type Compendium struct {
-	XMLSpells []XMLSpell `xml:"spell"`
-}
-
 // XMLSpell represents a <spell> element from our xml file
 //
 // Struct tags in Go (the stuff between the `'s) are used commonly
@@ -64,8 +59,13 @@ type XMLSpell struct {
 	Texts      []string `xml:"text"`
 }
 
+// Compendium represents our top level <compendium> element
+type compendium struct {
+	XMLSpells []XMLSpell `xml:"spell"`
+}
+
 // Components is needed because the xml file has everything on one darn line
-type Components struct {
+type components struct {
 	Verb    bool
 	Som     bool
 	Mat     bool
@@ -81,7 +81,7 @@ func (x *XMLSpell) ToDbSpell() (model.Spell, error) {
 	// to convert
 	var school, desc string
 	var concentration, ritual bool
-	var comps Components
+	var comps components
 
 	sourceID := PHBid //default to phb
 
@@ -145,9 +145,32 @@ func (x *XMLSpell) ToDbSpell() (model.Spell, error) {
 	return d, nil
 }
 
-// ParseComponents parses the information in the xml file's Components
+// ParseClasses converts the XMLSpell's string of comma seperated
+// classes into a slice of Class objects fully initialized with
+// ID and BaseClass values, ready to be inserted into our db.
+func (x *XMLSpell) ParseClasses() ([]model.Class, bool) {
+	cs := []model.Class{}
+	split := strings.Split(x.Classes, ", ")
+	for _, s := range split {
+		// here Classes is a map found in classes.go
+		// not in this file because it's long and ugly
+		if c, ok := Classes[s]; ok {
+			cs = append(cs, c)
+		} else {
+			return []model.Class{}, false
+		}
+	}
+	return cs, true
+}
+
+func trimSourceFromName(name string) string {
+	s := strings.NewReplacer(" (EE)", "", " (SCAG)", "")
+	return s.Replace(name)
+}
+
+// parseComponents parses the information in the xml file's Components
 // string into a Components struct literal
-func (x *XMLSpell) parseComponents() Components {
+func (x *XMLSpell) parseComponents() components {
 	var verb, som, mat bool
 	var matdesc sql.NullString
 
@@ -173,33 +196,10 @@ func (x *XMLSpell) parseComponents() Components {
 		matdesc = util.ToNullString(cdesc)
 	}
 
-	return Components{
+	return components{
 		Verb:    verb,
 		Som:     som,
 		Mat:     mat,
 		Matdesc: matdesc,
 	}
-}
-
-// ParseClasses converts the XMLSpell's string of comma seperated
-// classes into a slice of Class objects fully initialized with
-// ID and BaseClass values, ready to be inserted into our db.
-func (x *XMLSpell) ParseClasses() ([]model.Class, bool) {
-	cs := []model.Class{}
-	split := strings.Split(x.Classes, ", ")
-	for _, s := range split {
-		// here Classes is a map found in classes.go
-		// not in this file because it's long and ugly
-		if c, ok := Classes[s]; ok {
-			cs = append(cs, c)
-		} else {
-			return []model.Class{}, false
-		}
-	}
-	return cs, true
-}
-
-func trimSourceFromName(name string) string {
-	s := strings.NewReplacer(" (EE)", "", " (SCAG)", "")
-	return s.Replace(name)
 }

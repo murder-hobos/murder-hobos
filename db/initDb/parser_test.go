@@ -291,13 +291,13 @@ func TestXMLSpell_parseComponents(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
-		want   Components
+		want   components
 	}{
 
 		{
 			"V",
 			fields{Components: "V"},
-			Components{Verb: true, Som: false, Mat: false, Matdesc: sql.NullString{
+			components{Verb: true, Som: false, Mat: false, Matdesc: sql.NullString{
 				String: "",
 				Valid:  false},
 			},
@@ -305,7 +305,7 @@ func TestXMLSpell_parseComponents(t *testing.T) {
 		{
 			"V, S",
 			fields{Components: "V, S"},
-			Components{Verb: true, Som: true, Mat: false, Matdesc: sql.NullString{
+			components{Verb: true, Som: true, Mat: false, Matdesc: sql.NullString{
 				String: "",
 				Valid:  false},
 			},
@@ -313,7 +313,7 @@ func TestXMLSpell_parseComponents(t *testing.T) {
 		{
 			"V, S, M",
 			fields{Components: "V, S, M"},
-			Components{Verb: true, Som: true, Mat: true, Matdesc: sql.NullString{
+			components{Verb: true, Som: true, Mat: true, Matdesc: sql.NullString{
 				String: "",
 				Valid:  false},
 			},
@@ -321,7 +321,7 @@ func TestXMLSpell_parseComponents(t *testing.T) {
 		{
 			"V, S, M (text)",
 			fields{Components: "V, S, M (a jade circlet worth at least 1,500 gp, which you must place on your head before you cast the spell)"},
-			Components{Verb: true, Som: true, Mat: true, Matdesc: sql.NullString{
+			components{Verb: true, Som: true, Mat: true, Matdesc: sql.NullString{
 				String: "A jade circlet worth at least 1,500 gp, which you must place on your head before you cast the spell",
 				Valid:  true},
 			},
@@ -330,7 +330,7 @@ func TestXMLSpell_parseComponents(t *testing.T) {
 		{
 			"S",
 			fields{Components: "S"},
-			Components{Verb: false, Som: true, Mat: false, Matdesc: sql.NullString{
+			components{Verb: false, Som: true, Mat: false, Matdesc: sql.NullString{
 				String: "",
 				Valid:  false},
 			},
@@ -338,7 +338,7 @@ func TestXMLSpell_parseComponents(t *testing.T) {
 		{
 			"V, M (text)",
 			fields{Components: "V, M (bat fur and a drop of pitch or piece of coal)"},
-			Components{Verb: true, Som: false, Mat: true, Matdesc: sql.NullString{
+			components{Verb: true, Som: false, Mat: true, Matdesc: sql.NullString{
 				String: "Bat fur and a drop of pitch or piece of coal",
 				Valid:  true},
 			},
@@ -346,7 +346,7 @@ func TestXMLSpell_parseComponents(t *testing.T) {
 		{
 			"S, M",
 			fields{Components: "S, M"},
-			Components{Verb: false, Som: true, Mat: true, Matdesc: sql.NullString{
+			components{Verb: false, Som: true, Mat: true, Matdesc: sql.NullString{
 				String: "",
 				Valid:  false},
 			},
@@ -354,7 +354,7 @@ func TestXMLSpell_parseComponents(t *testing.T) {
 		{
 			"S, M (text)",
 			fields{Components: "S, M (a glowing stick of incense or a crystal vial filled with phosphorescent material)"},
-			Components{Verb: false, Som: true, Mat: true, Matdesc: sql.NullString{
+			components{Verb: false, Som: true, Mat: true, Matdesc: sql.NullString{
 				String: "A glowing stick of incense or a crystal vial filled with phosphorescent material",
 				Valid:  true},
 			},
