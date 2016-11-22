@@ -26,7 +26,6 @@ var (
 		"N":  "Necromancy",
 		"T":  "Transmutation",
 	}
-	// Classes map found in classes.go
 )
 
 const (
@@ -60,7 +59,7 @@ type XMLSpell struct {
 }
 
 // Compendium represents our top level <compendium> element
-type compendium struct {
+type Compendium struct {
 	XMLSpells []XMLSpell `xml:"spell"`
 }
 
