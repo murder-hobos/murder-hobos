@@ -19,6 +19,7 @@ func CapitalizeAtIndex(s string, i int) (string, bool) {
 	if i < 0 || i > len(s)-1 {
 		return s, false
 	}
+	// TODO: Fix this ugly inefficient crap
 	out := []rune(s)
 	badstr := string(out[i])
 	goodstr := strings.ToUpper(badstr)

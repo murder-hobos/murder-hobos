@@ -7,24 +7,24 @@ import (
 	"path/filepath"
 	"strings"
 
-	"os"
-
-	"github.com/go-sql-driver/mysql"
-	mux "github.com/gorilla/mux"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/jaden-young/murder-hobos/model"
-	"github.com/jmoiron/sqlx"
 )
 
 var (
 	// Package global that holds a map of our templates.
 	tmpls map[string]*template.Template
 
-	// DB connection
+	// db is our datastore
 	db *model.DB
 
 	// Session store
 	store = sessions.NewCookieStore([]byte("super-secret-key-that-is-totally-secure"))
+)
+
+const (
+	sessionKey = "murder-hobos"
 )
 
 func init() {
@@ -49,28 +49,23 @@ func init() {
 		files := append(includes, layout)
 		tmpls[filepath.Base(layout)] = template.Must(template.ParseFiles(files...))
 	}
-
-	dbconfig := mysql.Config{
-		User:            os.Getenv("MYSQL_USER"),
-		Passwd:          os.Getenv("MYSQL_PASS"),
-		DBName:          os.Getenv("MYSQL_DB_NAME"),
-		Net:             "tcp",
-		Addr:            os.Getenv("MYSQL_ADDR"),
-		MultiStatements: false,
-	}
-
-	conn := sqlx.MustConnect("mysql", dbconfig.FormatDSN())
-	db = &model.DB{DB: conn}
-
 }
 
 // New returns an initialized gorilla *mux.Router with all of our routes
-func New() *mux.Router {
+// Panics if unable to connect to datastore with given dsn
+// (don't want the server to start without database access)
+func New(dsn string) *mux.Router {
+	d, err := model.NewDB(dsn)
+	if err != nil {
+		panic(err)
+	}
+	db = d
+
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", indexHandler)
-	r.HandleFunc("/spell/{spellName}", db.WithDB(withSourceIDs(spellDetailsHandler)))
-	r.HandleFunc("/spells", db.WithDB(withSourceIDs(spellsHandler)))
+	r.HandleFunc("/spell/{spellName}", spellDetailsHandler)
+	r.HandleFunc("/spells", spellsHandler)
 	r.PathPrefix("/static").HandlerFunc(staticHandler)
 	return r
 }
@@ -84,18 +79,28 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// /spells
 // List all spells. We really should chache this eventually
 // instead of hitting the db everytime
 func spellsHandler(w http.ResponseWriter, r *http.Request) {
-	sourceIDs := r.Context().Value("sourceIDs").([]string)
-	db := r.Context().Value("db").(*model.DB)
+	var userID int
+	includeCannon := true // want to default to true, not false
 
-	spells, ok := db.GetAllSpells(sourceIDs)
-	if !ok {
-		log.Printf("Error getting all spells\n")
-		errorHandler(w, r, http.StatusInternalServerError)
-		return
+	if i, ok := getIntFromSession(r, "userID"); ok {
+		userID = i
+	}
+	if b, ok := getBoolFromSession(r, "includeCannon"); ok {
+		includeCannon = b
+	}
+
+	spells, err := db.GetAllSpells(userID, includeCannon)
+	if err != nil {
+		if err.Error() == "empty slice passed to 'in' query" || err == model.ErrNoResult {
+			// do nothing, just show no results on page (already in template)
+		} else { // something happened
+			log.Println(err.Error())
+			errorHandler(w, r, http.StatusInternalServerError)
+			return
+		}
 	}
 
 	if tmpl, ok := tmpls["spells.html"]; ok {
@@ -107,25 +112,32 @@ func spellsHandler(w http.ResponseWriter, r *http.Request) {
 
 // Show information about a single spell
 func spellDetailsHandler(w http.ResponseWriter, r *http.Request) {
-	name := mux.Vars(r)["spellName"]
-	sourceIDs := r.Context().Value("sourceIDs").([]string)
-	db := r.Context().Value("db").(*model.DB)
-	var spell *model.Spell
-	var classes *[]model.Class
+	var userID int
+	includeCannon := true // want to default to true, not false
 
-	if s, ok := db.GetSpellByName(name, sourceIDs); ok {
-		spell = s
-	} else {
+	if i, ok := getIntFromSession(r, "userID"); ok {
+		userID = i
+	}
+	if b, ok := getBoolFromSession(r, "includeCannon"); ok {
+		includeCannon = b
+	}
+
+	name := mux.Vars(r)["spellName"]
+
+	s, err := db.GetSpellByName(name, userID, includeCannon)
+	if err != nil {
+		log.Printf("Error getting spell by name: %s, userID: %d, isCannon: %t\n", name, s.ID, true)
+		log.Printf(err.Error())
 		errorHandler(w, r, http.StatusNotFound)
-		log.Printf("Couldn't find spell with name: %s and ids: %s\n", name, sourceIDs)
 		return
 	}
 
-	if cs, err := db.GetSpellClasses(spell.ID); err == nil {
-		classes = cs
-	} else {
+	cs, err := db.GetSpellClasses(s.ID)
+	// we shouldn't have an error at this point, we should have a spell
+	if err != nil {
+		log.Printf("Error getting spell classes with id %d\n", s.ID)
+		log.Println(err.Error())
 		errorHandler(w, r, http.StatusInternalServerError)
-		log.Printf("Error getting spell classes: %s\n", err.Error())
 		return
 	}
 
@@ -134,8 +146,8 @@ func spellDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			Spell   *model.Spell
 			Classes *[]model.Class
 		}{
-			spell,
-			classes,
+			s,
+			cs,
 		}
 		tmpl.ExecuteTemplate(w, "base", data)
 	} else {
@@ -176,4 +188,49 @@ func errorHandler(w http.ResponseWriter, r *http.Request, status int) {
 
 	vars := map[string]string{"Title": title, "Message": message}
 	tmpl.ExecuteTemplate(w, "base", vars)
+}
+
+func getStringFromSession(r *http.Request, key string) (string, bool) {
+	sess, err := store.Get(r, sessionKey)
+	if err != nil {
+		return "", false
+	}
+	val, ok := sess.Values[key]
+	if !ok {
+		return "", false
+	}
+	if s, ok := val.(string); ok {
+		return s, true
+	}
+	return "", false
+}
+
+func getIntFromSession(r *http.Request, key string) (int, bool) {
+	sess, err := store.Get(r, sessionKey)
+	if err != nil {
+		return 0, false
+	}
+	val, ok := sess.Values[key]
+	if !ok {
+		return 0, false
+	}
+	if i, ok := val.(int); ok {
+		return i, true
+	}
+	return 0, false
+}
+
+func getBoolFromSession(r *http.Request, key string) (bool, bool) {
+	sess, err := store.Get(r, sessionKey)
+	if err != nil {
+		return false, false
+	}
+	val, ok := sess.Values[key]
+	if !ok {
+		return false, false
+	}
+	if b, ok := val.(bool); ok {
+		return b, true
+	}
+	return false, false
 }
