@@ -24,7 +24,7 @@ Murder Hobos is a DnD 5e Spellbook reference application... which may be extende
 
 5. Run ```go install ./...``` from the project root to install server/init executables.
 
-5. Create a .env file in the project root with the following entries:
+6. Create a .env file in the project root with the following entries:
     ```
     PORT="some-port"
     MYSQL_USER="db-username"
@@ -36,6 +36,6 @@ Murder Hobos is a DnD 5e Spellbook reference application... which may be extende
     ```PORT``` is the port the webserver will run on, so when you run the server the site can be accessed through typing for example ```localhost:8000```.
     This file is sourced by heroku when running the server, adding those values as environment variables while the server is running.
 
-6. To run the server, run ```heroku local``` in the project root.
-7. After making any changes to files, run ```go install ./...``` from the project root to update the executable that the server runs
+7. To run the server, run ```heroku local``` from anywhere.
+8. After making any changes to files, run ```go install ./...``` from the project root to update the executable that the server runs
 
