@@ -11,7 +11,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/go-sql-driver/mysql"
-	"github.com/jaden-young/murder-hobos/db/initDb"
+	"github.com/murder-hobos/murder-hobos/db/initDb"
 	"github.com/jmoiron/sqlx"
 	"golang.org/x/crypto/ssh/terminal"
 )

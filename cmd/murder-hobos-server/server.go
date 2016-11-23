@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/jaden-young/murder-hobos/routes"
+	"github.com/murder-hobos/murder-hobos/routes"
 )
 
 func main() {

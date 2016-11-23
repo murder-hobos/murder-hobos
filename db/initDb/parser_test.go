@@ -8,7 +8,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jaden-young/murder-hobos/model"
+	"github.com/murder-hobos/murder-hobos/model"
 )
 
 func TestXMLSpell_ToDbSpell(t *testing.T) {

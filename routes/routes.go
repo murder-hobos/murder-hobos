@@ -9,7 +9,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
-	"github.com/jaden-young/murder-hobos/model"
+	"github.com/murder-hobos/murder-hobos/model"
 )
 
 var (

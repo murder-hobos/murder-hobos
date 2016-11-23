@@ -9,8 +9,8 @@ import (
 
 	"html"
 
-	"github.com/jaden-young/murder-hobos/model"
-	"github.com/jaden-young/murder-hobos/util"
+	"github.com/murder-hobos/murder-hobos/model"
+	"github.com/murder-hobos/murder-hobos/util"
 )
 
 var (

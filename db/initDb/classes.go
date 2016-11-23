@@ -3,7 +3,7 @@ package initDb
 import (
 	"database/sql"
 
-	"github.com/jaden-young/murder-hobos/model"
+	"github.com/murder-hobos/murder-hobos/model"
 )
 
 // Classes is a giant map of classes of the form:

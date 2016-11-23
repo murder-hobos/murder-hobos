@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"html/template"
 
-	"github.com/jaden-young/murder-hobos/util"
+	"github.com/murder-hobos/murder-hobos/util"
 )
 
 // Spell represents our database version of a spell
