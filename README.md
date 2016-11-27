@@ -36,6 +36,6 @@ Murder Hobos is a DnD 5e Spellbook reference application... which may be extende
     ```PORT``` is the port the webserver will run on, so when you run the server the site can be accessed through typing for example ```localhost:8000```.
     This file is sourced by heroku when running the server, adding those values as environment variables while the server is running.
 
-7. To run the server, run ```heroku local``` from anywhere.
+7. To run the server, run ```heroku local``` from anywhere in the project.
 8. After making any changes to files, run ```go install ./...``` from the project root to update the executable that the server runs
 
