@@ -1,0 +1,39 @@
+{{define "title"}}Murder Hobos{{end}} {{define "content"}}
+<div class="container">
+  <div class="page-header">
+    <h1>Lookie here folks, we got classes.</h1>
+    <input type="text" id="myInput" name="search" onkeyup="Sort()" placeholder="Search Classes..." title="Type in a name">
+  </div>
+  <div class="row">
+    <div class="col-lg-8 col-md-8 col-sm-10 col-xs-10">
+      <ul>
+        {{if .}} {{range .}}
+        <li><a href="/class/{{ .name }}">{{.name}}</a></li>
+        {{end}} {{else}}
+        <p>No results found!</p>
+        {{end}}
+      </ul>
+      <script>
+              function Sort() {
+              // Declare variables
+    var input, filter, ul, li, a, i;
+    input = document.getElementById('myInput');
+    filter = input.value.toUpperCase();
+    ul = document.getElementById("myUL");
+    li = ul.getElementsByTagName('href');
+
+    // Loop through all list items, and hide those who don't match the search query
+    for (i = 0; i < li.length; i++) {
+        a = li[i].getElementsByTagName("a")[0];
+        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+        } else {
+            li[i].style.display = "none";
+        }
+    }
+          }
+          </script>
+    </div>
+  </div>
+</div>
+{{end}}
