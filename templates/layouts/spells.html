@@ -1,48 +1,20 @@
 {{define "title"}}Murder Hobos{{end}} {{define "content"}}
-
-<html>
 <div class="container">
   <div class="page-header">
     <h1>Look at all these spells.</h1>
     <input type="text" id="myInput" name="search" onkeyup="Sort()" placeholder="Search Spells..." title="Type in a name">
-    
-      </div>
-      <div class="row">
-        <div class="col-lg-8 col-md-8 col-sm-10 col-xs-10">
-          
-          <ul>
-            {{if .}} {{range .}}
-            <li><a href="/spell/{{ .Name }}">{{.Name}}</a></li>
-            {{end}} {{else}}
-            <p>No results found!</p>
-            {{end}}
-          </ul>
-          <script>
-            function Sort() {
-                      
-            var input, filter, ul, li, a, i;
-            input = document.getElementById('myInput');
-            filter = input.value.toUpperCase();
-            ul = document.getElementById("myUL");
-            li = ul.getElementsByTagName('href');
-
-            // Loops through query and narrows results, not working rn
-            
-            for (i = 0; i < li.length; i++) {
-                a = li[i].getElementsByTagName("")[0];
-                if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
-                    li[i].style.display = "";
-                } else {
-                    li[i].style.display = "none";
-                }
-            }
-            
-          }
-          </script>
+  </div>
+  <div class="row">
+    <div class="col-lg-8 col-md-8 col-sm-10 col-xs-10">
+      <ul id="myUL">
+        {{if .}} {{range .}}
+        <li><a href="/spell/{{ .Name }}">{{.Name}}</a></li>
+        {{end}} {{else}}
+        <p>No results found!</p>
+        {{end}}
+      </ul>
+      <script type="text/javascript" src="static/js/spells.js"></script>
     </div>
   </div>
 </div>
-</html>
-
 {{end}}
-
