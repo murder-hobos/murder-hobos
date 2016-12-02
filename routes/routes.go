@@ -69,9 +69,9 @@ func New(dsn string) *mux.Router {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", indexHandler)
+	r.HandleFunc("/classes", env.classHandler)
 	r.HandleFunc("/spell/{spellName}", env.spellDetailsHandler)
 	r.HandleFunc("/spells", env.spellsHandler)
-	//r.HandleFunc("/classes", env.classHandler)
 	r.PathPrefix("/static").HandlerFunc(staticHandler)
 	return r
 }
@@ -164,18 +164,14 @@ func (env *Env) spellDetailsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 //lists all classes
-/*func (env *Env) classHandler(w http.ResponseWriter, r *http.Request) {
+func (env *Env) classHandler(w http.ResponseWriter, r *http.Request) {
 	var userID int
-	includeCannon := true
 
 	if i, ok := env.getIntFromSession(r, "userID"); ok {
 		userID = i
 	}
-	if b, ok := env.getBoolFromSession(r, "includeCannon"); ok {
-		includeCannon = b
-	}
 
-	classes, err := env.db.GetAllClasses(userID, includeCannon)
+	classes, err := env.db.GetAllClasses(userID)
 	if err != nil {
 		if err.Error() == "empty slice passed to 'in' query" || err == model.ErrNoResult {
 
@@ -191,7 +187,7 @@ func (env *Env) spellDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
 	}
-}*/
+}
 
 // serve static (js/css) files
 func staticHandler(w http.ResponseWriter, r *http.Request) {
