@@ -2,19 +2,19 @@
 <div class="container">
   <div class="page-header">
     <h1>Lookie here we got classes.</h1>
-    <input type="text" id="mySearch" name="search" onkeyup="Sort()" placeholder="Search Spells..." title="Type in a name">
+    <input type="text" id="mySearch" name="search" onkeyup="Sort()" placeholder="Search Classes..." title="Type in a name">
     <button id="searchButton" onclick="Sort()">Search</button>
   </div>
   <div class="row">
     <div class="col-lg-8 col-md-8 col-sm-10 col-xs-10">
-      <ul  id="Spell_List">
+      <ul id="Class_List">
         {{if .}} {{range .}}
         <li><a class="Classes" Tag="Class" href="/class/{{ .Name }}"> {{.Name}}</a></li>
         {{end}} {{else}}
         <p>No results found!</p>
         {{end}}
       </ul>
-     </div>
+    </div>
   </div>
 </div>
 {{end}}

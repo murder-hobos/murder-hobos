@@ -69,7 +69,7 @@ func New(dsn string) *mux.Router {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", indexHandler)
-	r.HandleFunc("/classes", env.classHandler)
+	r.HandleFunc("/classes", env.classesHandler)
 	r.HandleFunc("/spell/{spellName}", env.spellDetailsHandler)
 	r.HandleFunc("/spells", env.spellsHandler)
 	r.PathPrefix("/static").HandlerFunc(staticHandler)
@@ -163,29 +163,21 @@ func (env *Env) spellDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//lists all classes
-func (env *Env) classHandler(w http.ResponseWriter, r *http.Request) {
-	var userID int
-
-	if i, ok := env.getIntFromSession(r, "userID"); ok {
-		userID = i
-	}
-
-	classes, err := env.db.GetAllClasses(userID)
+// lists all classes
+func (env *Env) classesHandler(w http.ResponseWriter, r *http.Request) {
+	cs, err := env.db.GetAllClasses()
 	if err != nil {
-		if err.Error() == "empty slice passed to 'in' query" || err == model.ErrNoResult {
-
-		} else {
-			log.Println(err.Error())
-			errorHandler(w, r, http.StatusInternalServerError)
-			return
-		}
+		log.Println("Classes handler: " + err.Error())
+		errorHandler(w, r, http.StatusInternalServerError)
+		return
 	}
 
 	if tmpl, ok := env.tmpls["classes.html"]; ok {
-		tmpl.ExecuteTemplate(w, "base", classes)
+		tmpl.ExecuteTemplate(w, "base", cs)
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
+		log.Printf("Error loading template for classes\n")
+		return
 	}
 }
 
