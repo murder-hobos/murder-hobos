@@ -13,7 +13,7 @@ type Class struct {
 func (db *DB) GetAllClasses() (*[]Class, error) {
 
 	cs := &[]Class{}
-	if err := db.Select(cs, `SELECT * FROM Class`); err != nil {
+	if err := db.Select(cs, `SELECT id, name, base_class_id FROM Class`); err != nil {
 		return nil, err
 	}
 	return cs, nil
