@@ -1,4 +1,5 @@
 {{define "title"}}Murder Hobos{{end}} {{define "content"}}
+<br>
 <div class="container">
   <div class="page-header">
     <h1>Look at all these spells.</h1>
@@ -6,7 +7,7 @@
     <button id="searchButton" onclick="Sort()">Search</button>
   </div>
   <div class="row">
-    <div class="col-lg-8 col-md-8 col-sm-10 col-xs-10">
+    <div class="col-lg-8 col-md-8 col-sm-10 col-xs-10 list-type">
       <ul  id="Spell_List">
         {{if .}} {{range .}}
         <li><a class="Spells" Tag="Spell" href="/spell/{{ .Name }}"> {{.Name}}</a></li>

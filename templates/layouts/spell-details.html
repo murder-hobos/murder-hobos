@@ -1,8 +1,11 @@
 {{define "title"}}{{.Spell.Name}} - Murder Hobos{{end}} {{define "content"}}
+<br>
 <div class="container">
+	<div class="page-header">
+        <h1>{{.Spell.Name}}</h1>
+    </div>
     <div class="row">
         <div class="col-lg-6 col-md-6 col-sm-8 col-xs-8">
-            <h3>{{.Spell.Name}}</h3>
             <div>{{.Spell.School}}</div>
             <br/>
             <table class="table table-bordered text-center">
@@ -20,11 +23,13 @@
             <p>{{.Spell.HTMLDescription}}</p>
             <br/>
             <p>Available to:</p>
-            <ul>
-                {{range .Classes}}
-                <li><a href="/class/{{.Name}}">{{.Name}}</a></li>
-                {{end}}
-            </ul>
+            <div class="list-type">
+                <ul>
+                    {{range .Classes}}
+                    <li><a href="/class/{{.Name}}">{{.Name}}</a></li>
+                    {{end}}
+                </ul>
+            </div>
         </div>
     </div>
 </div>
