@@ -72,6 +72,7 @@ func New(dsn string) *mux.Router {
 	r.HandleFunc("/classes", env.classesHandler)
 	r.HandleFunc("/spell/{spellName}", env.spellDetailsHandler)
 	r.HandleFunc("/spells", env.spellsHandler)
+	r.HandleFunc("/login", env.loginHandler).Methods("GET")
 	r.PathPrefix("/static").HandlerFunc(staticHandler)
 	return r
 }
@@ -214,6 +215,45 @@ func errorHandler(w http.ResponseWriter, r *http.Request, status int) {
 
 	vars := map[string]string{"Title": title, "Message": message}
 	tmpl.ExecuteTemplate(w, "base", vars)
+}
+
+func (env *Env) loginHandler(w http.ResponseWriter, r *http.Request) {
+	u, err := env.store.Get(r, sessionKey)
+	if err != nil {
+		http.Error(w, "Real broke.", http.StatusInternalServerError)
+		return
+	}
+
+	u, ok := sess.Values["user"]
+	if !ok {
+
+	}
+
+	if t, ok := tmpls["login.html"]; ok {
+		t.ExecuteTemplate(w, "base", nil)
+	} else {
+		errorHandler(w, r, http.StatusInternalServerError)
+	}
+}
+
+func (env *Env) getFromSession(r *http.Request, key string, destType interface{}) (interface{}, bool) {
+	sess, err := env.store.Get(r, sessionKey)
+	if err != nil {
+		return nil, false
+	}
+	val, ok := sess.Values[key]
+	if !ok {
+		return nil, false
+	}
+
+	switch destType := destType.(type) {
+	case int:
+
+		if v, ok := val.(t); ok {
+			return v, true
+		}
+
+	}
 }
 
 // litle utils

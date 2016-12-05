@@ -32,6 +32,10 @@
                 <ul class="nav navbar-nav">
                     <li><a href="/spells">Spells</a></li>
                     <li><a href="/classes">Classes</a></li>
+                    {{if .User}}
+                    <li><a href="/user/{{User.id}}">Hello, {{.User.Username}}!</a></li>
+                    {{else}}
+                    <li><a href="/login">Login</a></li>
                 </ul>
             </div>
             <!--/.nav-collapse -->
@@ -39,7 +43,7 @@
     </nav>
     {{template "content" .}}
     <script type="text/javascript" src="/static/js/jquery-3.1.1.min.js"></script>
-    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script> {{template "scripts" .}}
     <footer class="footer">
         <hr/>
         <div class="container">

@@ -139,7 +139,7 @@ func (db *DB) GetSpellByName(name string, userID int, isCannon bool) (*Spell, er
 
 	query, args, err := sqlx.In(`SELECT * FROM Spell
 								WHERE name=? AND
-								source_id in (?);`,
+								source_id IN (?);`,
 		name, ids)
 	if err != nil {
 		log.Printf("Error preparing sqlx.In statement: %s\n", err.Error())
