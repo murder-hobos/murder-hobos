@@ -69,6 +69,7 @@ func New(dsn string) *mux.Router {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", indexHandler)
+	r.HandleFunc("/class/{className}", env.classDetailsHandler)
 	r.HandleFunc("/classes", env.classesHandler)
 	r.HandleFunc("/spell/{spellName}", env.spellDetailsHandler)
 	r.HandleFunc("/spells", env.spellsHandler)
@@ -177,6 +178,42 @@ func (env *Env) classesHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
 		log.Printf("Error loading template for classes\n")
+		return
+	}
+}
+
+// Shows a list of all spells available to a class
+func (env *Env) classDetailsHandler(w http.ResponseWriter, r *http.Request) {
+	name := mux.Vars(r)["className"]
+	c := &model.Class{}
+
+	c, err := env.db.GetClassByName(name)
+	if err != nil {
+		log.Printf("Error getting Class by name: %s\n", name)
+		log.Printf(err.Error())
+		errorHandler(w, r, http.StatusNotFound)
+		return
+	}
+
+	spells, err := env.db.GetClassSpells(c.ID)
+	if err != nil {
+		log.Println("Class-detail handler" + err.Error())
+		errorHandler(w, r, http.StatusInternalServerError)
+		return
+	}
+
+	data := struct {
+		Class  *model.Class
+		Spells *[]model.Spell
+	}{
+		c,
+		spells,
+	}
+	if tmpl, ok := env.tmpls["class-details.html"]; ok {
+		tmpl.ExecuteTemplate(w, "base", data)
+	} else {
+		errorHandler(w, r, http.StatusInternalServerError)
+		log.Printf("Error loading template for class-details\n")
 		return
 	}
 }
