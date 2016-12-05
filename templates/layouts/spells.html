@@ -10,25 +10,22 @@
     <thread>
       <tr>
         <th>Name</th>
-        <th>Duration</th>
-        <th>Distance</th>
-        <th>Concentration</th>
+        <th>Spell Level</th>
+        <th>School</th>
       </tr>
     </thread>
     <tbody id="Spell_List">
       {{if .}} {{range .}}
       <tr>
         <td><a class="Spells" Tag="Spell" href="/spell/{{ .Name }}">{{.Name}}</td>
-        <td>{{.Duration}}</td>
-        <td>{{.Range}}</td>
-        <th>{{.Concentration}}</th>
+        <td>{{.Level}}</td>
+        <td>{{.School}}</td>
       </tr>
       {{end}} {{else}}
       <tr>
         <th>Nothing</th>
         <th>Here</th>
-        <th>At The</th>
-        <th>Moment</th>
+        <th>At The moment</th>
       </tr>
       {{end}}
     </tbody>
