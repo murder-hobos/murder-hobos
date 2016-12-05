@@ -1,0 +1,19 @@
+{{define "title"}}{{.Class.Name}} - Murder Hobos{{end}} {{define "content"}}
+<br>
+<div class="container">
+  <div class="page-header">
+        <h1>{{.Class.Name}}</h1>
+    </div>
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-8 col-xs-8">
+            <div class="list-type">
+                <ul>
+                    {{range .Spells}}
+                    <li><a href="/class/{{.Name}}">{{.Name}}</a></li>
+                    {{end}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
