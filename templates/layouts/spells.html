@@ -6,18 +6,32 @@
     <input type="text" id="mySearch" name="search" placeholder="Search Spells..." title="Type in a name">
     <button id="searchButton" onclick="Sort()">Search</button>
   </div>
-  <div class="row">
-    <div class="col-lg-8 col-md-8 col-sm-10 col-xs-10 list-type">
-      <ul  id="Spell_List">
-        {{if .}} {{range .}}
-        <li><a class="Spells" Tag="Spell" href="/spell/{{ .Name }}"> {{.Name}}</a></li>
-        {{end}} {{else}}
-        <p>No results found!</p>
-        {{end}}
-      </ul>
-      <script src="/static/js/spells.js"></script>
-    </div>
-  </div>
-  
+  <table class="table">
+    <thread>
+      <tr>
+        <th>Name</th>
+        <th>Duration</th>
+        <th>Distance</th>
+        <th>Concentration</th>
+      </tr>
+    </thread>
+    <tbody id="Spell_List">
+      {{if .}} {{range .}}
+      <tr>
+        <td><a class="Spells" Tag="Spell" href="/spell/{{ .Name }}">{{.Name}}</td>
+        <td>{{.Duration}}</td>
+        <td>{{.Range}}</td>
+        <th>{{.Concentration}}</th>
+      </tr>
+      {{end}} {{else}}
+      <tr>
+        <th>Nothing</th>
+        <th>Here</th>
+        <th>At The</th>
+        <th>Moment</th>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
 </div>
 {{end}}
