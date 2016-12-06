@@ -2,16 +2,18 @@ package model
 
 import (
 	"log"
+
+	"database/sql"
 )
 
 // Class represents our database Class table
 type Character struct {
-	ID        			 int           `db:"id"`
-	Name      			 string        `db:"name"`
-	Race 	  			 string	       `db:"race"`
-	SpellAbilityModifier int  		   `db:"spell_ability_modifier"`
-	ProficienyBonus		 int 		   `db:"proficiency_bonus"`
-	UserID				 int 		   `db:"user_id"`
+	ID        			 sql.NullInt64  	`db:"id"`
+	Name      			 string        		`db:"name"`
+	Race 	  			 string	       		`db:"race"`
+	SpellAbilityModifier int  		   		`db:"spell_ability_modifier"`
+	ProficienyBonus		 int 		   		`db:"proficiency_bonus"`
+	UserID				 sql.NullInt64 		`db:"user_id"`
 }
 
 // GetAllClasses gets a list of every class in our database
