@@ -15,17 +15,20 @@ import (
 var (
 	// Package global that holds a map of our templates.
 	tmpls map[string]*template.Template
-
-	// db is our datastore
-	db *model.DB
-
-	// Session store
-	store = sessions.NewCookieStore([]byte("super-secret-key-that-is-totally-secure"))
 )
 
 const (
 	sessionKey = "murder-hobos"
 )
+
+// Env is a struct that defines an enviornment for server request handling.
+// It allows us to specify different combinations of datastores, templates,
+// and session stores
+type Env struct {
+	db    model.Datastore
+	tmpls map[string]*template.Template
+	store *sessions.CookieStore
+}
 
 func init() {
 	// setup template map
@@ -55,17 +58,21 @@ func init() {
 // Panics if unable to connect to datastore with given dsn
 // (don't want the server to start without database access)
 func New(dsn string) *mux.Router {
-	d, err := model.NewDB(dsn)
+	store := sessions.NewCookieStore([]byte("super-secret-key-that-is-totally-secure"))
+
+	db, err := model.NewDB(dsn)
 	if err != nil {
 		panic(err)
 	}
-	db = d
+	env := &Env{db, tmpls, store}
 
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", indexHandler)
-	r.HandleFunc("/spell/{spellName}", spellDetailsHandler)
-	r.HandleFunc("/spells", spellsHandler)
+	r.HandleFunc("/class/{className}", env.classDetailsHandler)
+	r.HandleFunc("/classes", env.classesHandler)
+	r.HandleFunc("/spell/{spellName}", env.spellDetailsHandler)
+	r.HandleFunc("/spells", env.spellsHandler)
 	r.PathPrefix("/static").HandlerFunc(staticHandler)
 	return r
 }
@@ -81,18 +88,18 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 // List all spells. We really should chache this eventually
 // instead of hitting the db everytime
-func spellsHandler(w http.ResponseWriter, r *http.Request) {
+func (env *Env) spellsHandler(w http.ResponseWriter, r *http.Request) {
 	var userID int
 	includeCannon := true // want to default to true, not false
 
-	if i, ok := getIntFromSession(r, "userID"); ok {
+	if i, ok := env.getIntFromSession(r, "userID"); ok {
 		userID = i
 	}
-	if b, ok := getBoolFromSession(r, "includeCannon"); ok {
+	if b, ok := env.getBoolFromSession(r, "includeCannon"); ok {
 		includeCannon = b
 	}
 
-	spells, err := db.GetAllSpells(userID, includeCannon)
+	spells, err := env.db.GetAllSpells(userID, includeCannon)
 	if err != nil {
 		if err.Error() == "empty slice passed to 'in' query" || err == model.ErrNoResult {
 			// do nothing, just show no results on page (already in template)
@@ -103,7 +110,7 @@ func spellsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if tmpl, ok := tmpls["spells.html"]; ok {
+	if tmpl, ok := env.tmpls["spells.html"]; ok {
 		tmpl.ExecuteTemplate(w, "base", spells)
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
@@ -111,20 +118,20 @@ func spellsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Show information about a single spell
-func spellDetailsHandler(w http.ResponseWriter, r *http.Request) {
+func (env *Env) spellDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	var userID int
 	includeCannon := true // want to default to true, not false
 
-	if i, ok := getIntFromSession(r, "userID"); ok {
+	if i, ok := env.getIntFromSession(r, "userID"); ok {
 		userID = i
 	}
-	if b, ok := getBoolFromSession(r, "includeCannon"); ok {
+	if b, ok := env.getBoolFromSession(r, "includeCannon"); ok {
 		includeCannon = b
 	}
 
 	name := mux.Vars(r)["spellName"]
 
-	s, err := db.GetSpellByName(name, userID, includeCannon)
+	s, err := env.db.GetSpellByName(name, userID, includeCannon)
 	if err != nil {
 		log.Printf("Error getting spell by name: %s, userID: %d, isCannon: %t\n", name, s.ID, true)
 		log.Printf(err.Error())
@@ -132,7 +139,7 @@ func spellDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cs, err := db.GetSpellClasses(s.ID)
+	cs, err := env.db.GetSpellClasses(s.ID)
 	// we shouldn't have an error at this point, we should have a spell
 	if err != nil {
 		log.Printf("Error getting spell classes with id %d\n", s.ID)
@@ -141,7 +148,7 @@ func spellDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if tmpl, ok := tmpls["spell-details.html"]; ok {
+	if tmpl, ok := env.tmpls["spell-details.html"]; ok {
 		data := struct {
 			Spell   *model.Spell
 			Classes *[]model.Class
@@ -156,6 +163,62 @@ func spellDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// lists all classes
+func (env *Env) classesHandler(w http.ResponseWriter, r *http.Request) {
+	cs, err := env.db.GetAllClasses()
+	if err != nil {
+		log.Println("Classes handler: " + err.Error())
+		errorHandler(w, r, http.StatusInternalServerError)
+		return
+	}
+
+	if tmpl, ok := env.tmpls["classes.html"]; ok {
+		tmpl.ExecuteTemplate(w, "base", cs)
+	} else {
+		errorHandler(w, r, http.StatusInternalServerError)
+		log.Printf("Error loading template for classes\n")
+		return
+	}
+}
+
+// Shows a list of all spells available to a class
+func (env *Env) classDetailsHandler(w http.ResponseWriter, r *http.Request) {
+	name := mux.Vars(r)["className"]
+	c := &model.Class{}
+
+	c, err := env.db.GetClassByName(name)
+	if err != nil {
+		log.Printf("Error getting Class by name: %s\n", name)
+		log.Printf(err.Error())
+		errorHandler(w, r, http.StatusNotFound)
+		return
+	}
+
+	spells, err := env.db.GetClassSpells(c.ID)
+	if err != nil {
+		log.Println("Class-detail handler" + err.Error())
+		errorHandler(w, r, http.StatusInternalServerError)
+		return
+	}
+
+	data := struct {
+		Class  *model.Class
+		Spells *[]model.Spell
+	}{
+		c,
+		spells,
+	}
+	if tmpl, ok := env.tmpls["class-details.html"]; ok {
+		tmpl.ExecuteTemplate(w, "base", data)
+	} else {
+		errorHandler(w, r, http.StatusInternalServerError)
+		log.Printf("Error loading template for class-details\n")
+		return
+	}
+}
+
+// serve static (js/css) files
 func staticHandler(w http.ResponseWriter, r *http.Request) {
 	// Don't want to list directories
 	if strings.HasSuffix(r.URL.Path, "/") {
@@ -190,8 +253,9 @@ func errorHandler(w http.ResponseWriter, r *http.Request, status int) {
 	tmpl.ExecuteTemplate(w, "base", vars)
 }
 
-func getStringFromSession(r *http.Request, key string) (string, bool) {
-	sess, err := store.Get(r, sessionKey)
+// litle utils
+func (env *Env) getStringFromSession(r *http.Request, key string) (string, bool) {
+	sess, err := env.store.Get(r, sessionKey)
 	if err != nil {
 		return "", false
 	}
@@ -205,8 +269,8 @@ func getStringFromSession(r *http.Request, key string) (string, bool) {
 	return "", false
 }
 
-func getIntFromSession(r *http.Request, key string) (int, bool) {
-	sess, err := store.Get(r, sessionKey)
+func (env *Env) getIntFromSession(r *http.Request, key string) (int, bool) {
+	sess, err := env.store.Get(r, sessionKey)
 	if err != nil {
 		return 0, false
 	}
@@ -220,8 +284,8 @@ func getIntFromSession(r *http.Request, key string) (int, bool) {
 	return 0, false
 }
 
-func getBoolFromSession(r *http.Request, key string) (bool, bool) {
-	sess, err := store.Get(r, sessionKey)
+func (env *Env) getBoolFromSession(r *http.Request, key string) (bool, bool) {
+	sess, err := env.store.Get(r, sessionKey)
 	if err != nil {
 		return false, false
 	}

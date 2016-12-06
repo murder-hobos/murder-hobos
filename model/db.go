@@ -61,6 +61,9 @@ type Datastore interface {
 	GetSpellByID(id int) (*Spell, error)
 	GetSpellByName(name string, userID int, isCannon bool) (*Spell, error)
 	GetSpellClasses(spellID int) (*[]Class, error)
+	GetAllClasses() (*[]Class, error)
+	GetClassByName(name string) (*Class, error)
+	GetClassSpells(classID int) (*[]Spell, error)
 }
 
 // DB is a wrapper struct for our database connection that we

@@ -1,18 +1,36 @@
 {{define "title"}}Murder Hobos{{end}} {{define "content"}}
+<br>
 <div class="container">
   <div class="page-header">
     <h1>Look at all these spells.</h1>
+    <input type="text" id="mySearch" name="search" placeholder="Search Spells..." title="Type in a name">
+    <button id="searchButton" onclick="Sort()">Search</button>
   </div>
-  <div class="row">
-    <div class="col-lg-8 col-md-8 col-sm-10 col-xs-10">
-      <ul>
-        {{if .}} {{range .}}
-        <li><a href="/spell/{{ .Name }}">{{.Name}}</a></li>
-        {{end}} {{else}}
-        <p>No results found!</p>
-        {{end}}
-      </ul>
-    </div>
+  <div class="table-responsive">
+  <table class="table">
+    <thread>
+      <tr>
+        <th>Name</th>
+        <th>Spell Level</th>
+        <th>School</th>
+      </tr>
+    </thread>
+    <tbody id="Spell_List">
+      {{if .}} {{range .}}
+      <tr>
+        <td><a class="Spells" Tag="Spell" href="/spell/{{ .Name }}">{{.Name}}</td>
+        <td>{{.Level}}</td>
+        <td>{{.School}}</td>
+      </tr>
+      {{end}} {{else}}
+      <tr>
+        <th>Nothing</th>
+        <th>Here</th>
+        <th>At The moment</th>
+      </tr>
+      {{end}}
+      </tbody>
+    </table>
   </div>
 </div>
 {{end}}
