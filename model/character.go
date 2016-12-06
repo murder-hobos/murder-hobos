@@ -18,9 +18,8 @@ type Character struct {
 
 // GetAllClasses gets a list of every class in our database
 func (db *DB) GetAllCharacters() (*[]Character, error) {
-
 	c := &[]Character{}
-	if err := db.Select(c, `SELECT id, name, race, spell_ability_modifier, proficiency_bonus, user_id FROM Character;`); err != nil {
+	if err := db.Select(c, `SELECT id, name, race, spell_ability_modifier, proficiency_bonus, user_id FROM `+ "`Character`" +`;`); err != nil {
 		return nil, err
 	}
 	return c, nil
@@ -34,7 +33,7 @@ func (db *DB) GetCharacterByName(name string) (*Character, error) {
 	}
 
 	c := &Character{}
-	err := db.Get(c, `SELECT * FROM Character WHERE name=?`, name)
+	err := db.Get(c, `SELECT * FROM ` + "`Character`" + ` WHERE name=?`, name)
 	if err != nil {
 		log.Printf("GetCharacterByName: %s\n", err.Error())
 		return nil, err
