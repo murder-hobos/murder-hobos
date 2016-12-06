@@ -60,7 +60,10 @@ type Datastore interface {
 	GetAllSpells(userID int, includeCannon bool) (*[]Spell, error)
 	GetSpellByID(id int) (*Spell, error)
 	GetSpellByName(name string, userID int, isCannon bool) (*Spell, error)
+	SearchSpellsByName(userID int, name string) (*[]Spell, error)
+
 	GetSpellClasses(spellID int) (*[]Class, error)
+
 	GetAllClasses() (*[]Class, error)
 	GetClassByName(name string) (*Class, error)
 	GetClassSpells(classID int) (*[]Spell, error)

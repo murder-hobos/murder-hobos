@@ -72,6 +72,7 @@ func New(dsn string) *mux.Router {
 	r.HandleFunc("/class/{className}", env.classDetailsHandler)
 	r.HandleFunc("/classes", env.classesHandler)
 	r.HandleFunc("/spell/{spellName}", env.spellDetailsHandler)
+	r.HandleFunc("/spells", env.spellsSearchHandler).Queries("search", "")
 	r.HandleFunc("/spells", env.spellsHandler)
 	r.PathPrefix("/static").HandlerFunc(staticHandler)
 	return r
@@ -100,6 +101,32 @@ func (env *Env) spellsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	spells, err := env.db.GetAllSpells(userID, includeCannon)
+	if err != nil {
+		if err.Error() == "empty slice passed to 'in' query" || err == model.ErrNoResult {
+			// do nothing, just show no results on page (already in template)
+		} else { // something happened
+			log.Println(err.Error())
+			errorHandler(w, r, http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if tmpl, ok := env.tmpls["spells.html"]; ok {
+		tmpl.ExecuteTemplate(w, "base", spells)
+	} else {
+		errorHandler(w, r, http.StatusInternalServerError)
+	}
+}
+
+func (env *Env) spellsSearchHandler(w http.ResponseWriter, r *http.Request) {
+	var userID int
+	name := r.FormValue("search")
+
+	if i, ok := env.getIntFromSession(r, "userID"); ok {
+		userID = i
+	}
+
+	spells, err := env.db.SearchSpellsByName(userID, name)
 	if err != nil {
 		if err.Error() == "empty slice passed to 'in' query" || err == model.ErrNoResult {
 			// do nothing, just show no results on page (already in template)

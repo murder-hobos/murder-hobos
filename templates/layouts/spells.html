@@ -3,8 +3,12 @@
 <div class="container">
   <div class="page-header">
     <h1>Look at all these spells.</h1>
-    <input type="text" id="mySearch" name="search" placeholder="Search Spells..." title="Type in a name">
-    <button id="searchButton" onclick="Sort()">Search</button>
+  </div>
+  <div class="form-group">
+    <form>
+      <input type="text" id="spellSearch" name="search" placeholder="Spell name..." title="Search for spells by name"></input>
+      <input class="btn btn-default" type="submit" id="searchButton" value="Search"></input>
+    </form>
   </div>
   <div class="table-responsive">
   <table class="table">

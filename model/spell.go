@@ -100,6 +100,35 @@ func (db *DB) GetAllSpells(userID int, includeCannon bool) (*[]Spell, error) {
 	return spells, nil
 }
 
+// SearchSpellsByName searches for spells with names close to the given name.
+// If userID is 0, cannon spells are searched, otherwise user spells are searched.
+func (db *DB) SearchSpellsByName(userID int, name string) (*[]Spell, error) {
+	var ids []int
+	if userID < 0 {
+		return nil, ErrInvalidID
+	}
+	if userID > 0 {
+		ids = append(ids, userID)
+	}
+	ids = append(ids, cannonIDs...)
+
+	query, args, err := sqlx.In(`SELECT * FROM Spell 
+							  WHERE name LIKE CONCAT('%', ?, '%') 
+							  AND source_id IN (?);`, name, ids)
+	if err != nil {
+		log.Printf("Error preparing sqlx.In statement: %s\n", err.Error())
+		return nil, err
+	}
+	query = db.Rebind(query)
+
+	spells := &[]Spell{}
+	if err := db.Select(spells, query, args...); err != nil {
+		log.Printf("Error executing query %s\n %s\n", query, err.Error())
+		return nil, err
+	}
+	return spells, nil
+}
+
 // GetSpellByID searches db for a Spell row with a matching id
 func (db *DB) GetSpellByID(id int) (*Spell, error) {
 	if id <= 0 {
