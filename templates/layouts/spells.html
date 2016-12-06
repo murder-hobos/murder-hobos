@@ -3,20 +3,22 @@
 <div class="container">
   <div class="page-header">
     <h1>Look at all these spells.</h1>
-    <input type="text" id="mySearch" name="search" placeholder="Search Spells..." title="Type in a name">
-    <button id="searchButton" onclick="Sort()">Search</button>
-    <div class="form form-group">
+    <div class="form-group">
+      <form method="GET">
+        <input type="text" id="mySearch" name="search" placeholder="Search Spells..." title="Type in a name">
+        <button id="searchButton">Search</button>
+      </form>
       <form method="GET">
         <select name="school">
           <option selected disabled value="" >Spell Schools</option>
-          <option value = "Abjuration">Abjuration</option>
-          <option value = "Conjuration">Conjuration</option>
-          <option value = "Divination">Divination</option>
-          <option value = "Enchantment">Enchantment</option>
-          <option value = "Evocation">Evocation</option>
-          <option value = "Illusion">Illusion</option>
-          <option value = "Necromancy">Necromancy</option>
-          <option value = "Transmutation">Transmutation</option>
+          <option value="Abjuration">Abjuration</option>
+          <option value="Conjuration">Conjuration</option>
+          <option value="Divination">Divination</option>
+          <option value="Enchantment">Enchantment</option>
+          <option value="Evocation">Evocation</option>
+          <option value="Illusion">Illusion</option>
+          <option value="Necromancy">Necromancy</option>
+          <option value="Transmutation">Transmutation</option>
         </select>
         <select name="level">
           <option selected disabled value="">Level Select</option>
