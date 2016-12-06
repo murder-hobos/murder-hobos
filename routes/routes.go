@@ -69,8 +69,10 @@ func New(dsn string) *mux.Router {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", indexHandler)
+	r.HandleFunc("/class/{className}", env.classDetailsHandler)
 	r.HandleFunc("/classes", env.classesHandler)
 	r.HandleFunc("/spell/{spellName}", env.spellDetailsHandler)
+	r.HandleFunc("/spells", env.spellsSearchHandler).Queries("search", "")
 	r.HandleFunc("/spells", env.spellsHandler)
 	r.HandleFunc("/login", env.loginHandler).Methods("GET")
 	r.PathPrefix("/static").HandlerFunc(staticHandler)
@@ -90,6 +92,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 // instead of hitting the db everytime
 func (env *Env) spellsHandler(w http.ResponseWriter, r *http.Request) {
 	var userID int
+
 	includeCannon := true // want to default to true, not false
 
 	if i, ok := env.getIntFromSession(r, "userID"); ok {
@@ -98,8 +101,36 @@ func (env *Env) spellsHandler(w http.ResponseWriter, r *http.Request) {
 	if b, ok := env.getBoolFromSession(r, "includeCannon"); ok {
 		includeCannon = b
 	}
+	level := r.FormValue("level")
+	school := r.FormValue("school")
 
-	spells, err := env.db.GetAllSpells(userID, includeCannon)
+	spells, err := env.db.GetAllSpells(userID, includeCannon, school, level)
+	if err != nil {
+		if err.Error() == "empty slice passed to 'in' query" || err == model.ErrNoResult {
+			// do nothing, just show no results on page (already in template)
+		} else { // something happened
+			log.Println(err.Error())
+			errorHandler(w, r, http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if tmpl, ok := env.tmpls["spells.html"]; ok {
+		tmpl.ExecuteTemplate(w, "base", spells)
+	} else {
+		errorHandler(w, r, http.StatusInternalServerError)
+	}
+}
+
+func (env *Env) spellsSearchHandler(w http.ResponseWriter, r *http.Request) {
+	var userID int
+	name := r.FormValue("search")
+
+	if i, ok := env.getIntFromSession(r, "userID"); ok {
+		userID = i
+	}
+
+	spells, err := env.db.SearchSpellsByName(userID, name)
 	if err != nil {
 		if err.Error() == "empty slice passed to 'in' query" || err == model.ErrNoResult {
 			// do nothing, just show no results on page (already in template)
@@ -178,6 +209,42 @@ func (env *Env) classesHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
 		log.Printf("Error loading template for classes\n")
+		return
+	}
+}
+
+// Shows a list of all spells available to a class
+func (env *Env) classDetailsHandler(w http.ResponseWriter, r *http.Request) {
+	name := mux.Vars(r)["className"]
+	c := &model.Class{}
+
+	c, err := env.db.GetClassByName(name)
+	if err != nil {
+		log.Printf("Error getting Class by name: %s\n", name)
+		log.Printf(err.Error())
+		errorHandler(w, r, http.StatusNotFound)
+		return
+	}
+
+	spells, err := env.db.GetClassSpells(c.ID)
+	if err != nil {
+		log.Println("Class-detail handler" + err.Error())
+		errorHandler(w, r, http.StatusInternalServerError)
+		return
+	}
+
+	data := struct {
+		Class  *model.Class
+		Spells *[]model.Spell
+	}{
+		c,
+		spells,
+	}
+	if tmpl, ok := env.tmpls["class-details.html"]; ok {
+		tmpl.ExecuteTemplate(w, "base", data)
+	} else {
+		errorHandler(w, r, http.StatusInternalServerError)
+		log.Printf("Error loading template for class-details\n")
 		return
 	}
 }

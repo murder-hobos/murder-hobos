@@ -64,11 +64,20 @@ func (s *Spell) HTMLDescription() template.HTML {
 	return template.HTML(s.Description)
 }
 
+// LevelStr fixes cantrip bullshit
+func (s *Spell) LevelStr() string {
+	if s.Level == "0" {
+		return "Cantrip"
+	} else {
+		return s.Level
+	}
+}
+
 // GetAllSpells returns a slice of all spells in the database.
 // userID can be 0. If otherwise specified, spells with the corresponding sourceID are
 // included in the result.
 // includeCannon chooses whether or not to include cannon(PHB, EE, SCAG) spells.
-func (db *DB) GetAllSpells(userID int, includeCannon bool) (*[]Spell, error) {
+func (db *DB) GetAllSpells(userID int, includeCannon bool, school, level string) (*[]Spell, error) {
 	// verify arguments
 	if userID == 0 && !includeCannon {
 		return nil, ErrNoResult
@@ -85,7 +94,84 @@ func (db *DB) GetAllSpells(userID int, includeCannon bool) (*[]Spell, error) {
 		ids = append(ids, cannonIDs...)
 	}
 
-	query, args, err := sqlx.In(`SELECT * FROM Spell WHERE source_id IN (?);`, ids)
+	if (school != "") && (level != "") {
+		query, args, err := sqlx.In(`SELECT * FROM Spell WHERE school = ? AND level = ? AND source_id IN (?) ORDER BY name ASC;`, school, level, ids)
+		if err != nil {
+			log.Printf("Error preparing sqlx.In statement: %s\n", err.Error())
+			return nil, err
+		}
+		query = db.Rebind(query)
+
+		spells := &[]Spell{}
+		if err := db.Select(spells, query, args...); err != nil {
+			log.Printf("Error executing query %s\n %s\n", query, err.Error())
+			return nil, err
+		}
+		return spells, nil
+
+	} else if school != "" {
+		query, args, err := sqlx.In(`SELECT * FROM Spell WHERE school = ? AND source_id IN (?) ORDER BY name ASC;`, school, ids)
+		if err != nil {
+			log.Printf("Error preparing sqlx.In statement: %s\n", err.Error())
+			return nil, err
+		}
+		query = db.Rebind(query)
+
+		spells := &[]Spell{}
+		if err := db.Select(spells, query, args...); err != nil {
+			log.Printf("Error executing query %s\n %s\n", query, err.Error())
+			return nil, err
+
+		}
+		return spells, nil
+	} else if level != "" {
+		query, args, err := sqlx.In(`SELECT * FROM Spell WHERE level = ? AND source_id IN (?) ORDER BY name ASC;`, level, ids)
+		if err != nil {
+			log.Printf("Error preparing sqlx.In statement: %s\n", err.Error())
+			return nil, err
+		}
+		query = db.Rebind(query)
+
+		spells := &[]Spell{}
+		if err := db.Select(spells, query, args...); err != nil {
+			log.Printf("Error executing query %s\n %s\n", query, err.Error())
+			return nil, err
+		}
+		return spells, nil
+
+	} else {
+		query, args, err := sqlx.In(`SELECT * FROM Spell WHERE source_id IN (?) ORDER BY name ASC;`, ids)
+		if err != nil {
+			log.Printf("Error preparing sqlx.In statement: %s\n", err.Error())
+			return nil, err
+		}
+		query = db.Rebind(query)
+
+		spells := &[]Spell{}
+		if err := db.Select(spells, query, args...); err != nil {
+			log.Printf("Error executing query %s\n %s\n", query, err.Error())
+			return nil, err
+		}
+		return spells, nil
+	}
+
+}
+
+// SearchSpellsByName searches for spells with names close to the given name.
+// If userID is 0, cannon spells are searched, otherwise user spells are searched.
+func (db *DB) SearchSpellsByName(userID int, name string) (*[]Spell, error) {
+	var ids []int
+	if userID < 0 {
+		return nil, ErrInvalidID
+	}
+	if userID > 0 {
+		ids = append(ids, userID)
+	}
+	ids = append(ids, cannonIDs...)
+
+	query, args, err := sqlx.In(`SELECT * FROM Spell 
+							  WHERE name LIKE CONCAT('%', ?, '%') 
+							  AND source_id IN (?);`, name, ids)
 	if err != nil {
 		log.Printf("Error preparing sqlx.In statement: %s\n", err.Error())
 		return nil, err
@@ -141,6 +227,45 @@ func (db *DB) GetSpellByName(name string, userID int, isCannon bool) (*Spell, er
 								WHERE name=? AND
 								source_id IN (?);`,
 		name, ids)
+	if err != nil {
+		log.Printf("Error preparing sqlx.In statement: %s\n", err.Error())
+		return nil, err
+	}
+	query = db.Rebind(query)
+
+	s := &Spell{}
+	if err := db.Get(s, query, args...); err != nil {
+		log.Printf("Error executing query %s\n %s\n", query, err.Error())
+		return nil, err
+	}
+	return s, nil
+}
+
+// GetSchoolSpells searches the database and returns a slice of
+// Spell within same School id
+func (db *DB) GetSchoolSpells(school string, userID int, isCannon bool) (*Spell, error) {
+	// verify arguments before hitting the db
+	if school == "" {
+		return nil, ErrNoResult
+	}
+	if userID < 0 {
+		return nil, ErrInvalidID
+	}
+	if userID == 0 && !isCannon {
+		return nil, ErrNoResult
+	}
+
+	var ids []int
+	if userID > 0 { // If given a specific user, only search that
+		ids = append(ids, userID)
+	} else { // at this point isCannon must be true
+		ids = append(ids, cannonIDs...)
+	}
+
+	query, args, err := sqlx.In(`SELECT * FROM Spell
+								WHERE school=? AND
+								source_id in (?);`,
+		school, ids)
 	if err != nil {
 		log.Printf("Error preparing sqlx.In statement: %s\n", err.Error())
 		return nil, err
