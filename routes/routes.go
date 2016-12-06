@@ -285,7 +285,7 @@ func errorHandler(w http.ResponseWriter, r *http.Request, status int) {
 }
 
 func (env *Env) loginHandler(w http.ResponseWriter, r *http.Request) {
-	u, err := env.store.Get(r, sessionKey)
+	sess, err := env.store.Get(r, sessionKey)
 	if err != nil {
 		http.Error(w, "Real broke.", http.StatusInternalServerError)
 		return
