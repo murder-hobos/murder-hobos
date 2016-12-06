@@ -69,6 +69,8 @@ func New(dsn string) *mux.Router {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", indexHandler)
+	r.HandleFunc("/characters", env.characterHandler)
+	r.HandleFunc("/character/{characterName}", env.characterDetailHandler)
 	r.HandleFunc("/class/{className}", env.classDetailsHandler)
 	r.HandleFunc("/classes", env.classesHandler)
 	r.HandleFunc("/spell/{spellName}", env.spellDetailsHandler)
@@ -83,6 +85,57 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		tmpl.ExecuteTemplate(w, "base", nil)
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
+	}
+}
+
+func (env *Env) characterHandler(w http.ResponseWriter, r *http.Request) {
+	//var userID int
+	// if i, ok := env.getIntFromSession(r, "UserID"); ok {
+	// 	userID = i
+	// }
+
+	//we will need to make this specific to userID soon on an account by account basis
+	characters, err := env.db.GetAllCharacters()
+	if err != nil {
+		if err.Error() == "empty slice passed to 'in' query" || err == model.ErrNoResult {
+			// do nothing, just show no results on page (already in template)
+		} else { // something happened
+			log.Println(err.Error())
+			errorHandler(w, r, http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if tmpl, ok := env.tmpls["characters.html"]; ok {
+		tmpl.ExecuteTemplate(w, "base", characters)
+	} else {
+		errorHandler(w, r, http.StatusInternalServerError)
+	}
+}
+
+func (env *Env) characterDetailHandler(w http.ResponseWriter, r *http.Request) {
+	name := mux.Vars(r)["characterName"]
+	c := &model.Character{}
+
+	c, err := env.db.GetCharacterByName(name)
+	if err != nil {
+		log.Printf("Error getting Character with name: %s\n", name)
+		log.Printf(err.Error())
+		errorHandler(w, r, http.StatusNotFound)
+		return
+	}
+
+	data := struct {
+		Character  *model.Character
+	}{
+		c,
+	}
+	if tmpl, ok := env.tmpls["character-details.html"]; ok {
+		tmpl.ExecuteTemplate(w, "base", data)
+	} else {
+		errorHandler(w, r, http.StatusInternalServerError)
+		log.Printf("Error loading template for class-details\n")
+		return
 	}
 }
 

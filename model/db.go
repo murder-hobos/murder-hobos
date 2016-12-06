@@ -64,6 +64,8 @@ type Datastore interface {
 	GetAllClasses() (*[]Class, error)
 	GetClassByName(name string) (*Class, error)
 	GetClassSpells(classID int) (*[]Spell, error)
+	GetAllCharacters() (*[]Character, error)
+	GetCharacterByName(name string) (*Character, error)
 }
 
 // DB is a wrapper struct for our database connection that we
