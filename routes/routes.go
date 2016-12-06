@@ -91,6 +91,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 // instead of hitting the db everytime
 func (env *Env) spellsHandler(w http.ResponseWriter, r *http.Request) {
 	var userID int
+
 	includeCannon := true // want to default to true, not false
 
 	if i, ok := env.getIntFromSession(r, "userID"); ok {
@@ -99,8 +100,10 @@ func (env *Env) spellsHandler(w http.ResponseWriter, r *http.Request) {
 	if b, ok := env.getBoolFromSession(r, "includeCannon"); ok {
 		includeCannon = b
 	}
+	level := r.FormValue("level")
+	school := r.FormValue("school")
 
-	spells, err := env.db.GetAllSpells(userID, includeCannon)
+	spells, err := env.db.GetAllSpells(userID, includeCannon, school, level)
 	if err != nil {
 		if err.Error() == "empty slice passed to 'in' query" || err == model.ErrNoResult {
 			// do nothing, just show no results on page (already in template)

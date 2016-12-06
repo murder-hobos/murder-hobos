@@ -57,7 +57,7 @@ var (
 // GetSpellClasses gets a list of the Classes that a spell with the
 // given id is available to.
 type Datastore interface {
-	GetAllSpells(userID int, includeCannon bool) (*[]Spell, error)
+	GetAllSpells(userID int, includeCannon bool, school string, level string) (*[]Spell, error)
 	GetSpellByID(id int) (*Spell, error)
 	GetSpellByName(name string, userID int, isCannon bool) (*Spell, error)
 	SearchSpellsByName(userID int, name string) (*[]Spell, error)
