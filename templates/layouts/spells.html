@@ -5,23 +5,50 @@
     <h1>Look at all these spells.</h1>
     <input type="text" id="mySearch" name="search" placeholder="Search Spells..." title="Type in a name">
     <button id="searchButton" onclick="Sort()">Search</button>
+    <div class="form form-group">
+      <form method="GET">
+        <select name="school">
+          <option selected disabled value="" >Spell Schools</option>
+          <option value = "Abjuration">Abjuration</option>
+          <option value = "Conjuration">Conjuration</option>
+          <option value = "Divination">Divination</option>
+          <option value = "Enchantment">Enchantment</option>
+          <option value = "Evocation">Evocation</option>
+          <option value = "Illusion">Illusion</option>
+          <option value = "Necromancy">Necromancy</option>
+          <option value = "Transmutation">Transmutation</option>
+        </select>
+        <select name="level">
+          <option selected disabled value="">Level Select</option>
+          <option value="0">Cantrip</option>
+          <option value="1">Level 1</option>
+          <option value="2">Level 2</option>
+          <option value="3">Level 3</option>
+          <option value="4">Level 4</option>
+          <option value="5">Level 5</option>
+          <option value="6">Level 6</option>
+          <option value="7">Level 7</option>
+          <option value="8">Level 8</option>
+          <option value="9">Level 9</option>
+        </select>
+        <input class="btn" type="submit" value="Filter"></input>
+      </form>
+    </div>
   </div>
   <table class="table">
     <thread>
       <tr>
         <th>Name</th>
-        <th>Duration</th>
-        <th>Distance</th>
-        <th>Concentration</th>
+        <th>School</th>
+        <th>Level</th>
       </tr>
     </thread>
     <tbody id="Spell_List">
       {{if .}} {{range .}}
       <tr>
         <td><a class="Spells" Tag="Spell" href="/spell/{{ .Name }}">{{.Name}}</td>
-        <td>{{.Duration}}</td>
-        <td>{{.Range}}</td>
-        <th>{{.Concentration}}</th>
+        <td>{{.School}}</td>
+        <td>{{.LevelStr}}</td>
       </tr>
       {{end}} {{else}}
       <tr>
