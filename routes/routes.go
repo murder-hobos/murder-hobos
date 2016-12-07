@@ -196,7 +196,8 @@ func (env *Env) spellDetailsHandler(w http.ResponseWriter, r *http.Request) {
 
 // lists all classes
 func (env *Env) classesHandler(w http.ResponseWriter, r *http.Request) {
-	cs, err := env.db.GetAllClasses()
+	mainClass := mux.Vars(r)["mainClass"]
+	cs, err := env.db.GetAllClasses(mainClass)
 	if err != nil {
 		log.Println("Classes handler: " + err.Error())
 		errorHandler(w, r, http.StatusInternalServerError)

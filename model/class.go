@@ -4,6 +4,8 @@ import (
 	"log"
 
 	"database/sql"
+
+	"github.com/jmoiron/sqlx"
 )
 
 // Class represents our database Class table
@@ -14,13 +16,38 @@ type Class struct {
 }
 
 // GetAllClasses gets a list of every class in our database
-func (db *DB) GetAllClasses() (*[]Class, error) {
+func (db *DB) GetAllClasses(mainClass string) (*[]Class, error) {
 
-	cs := &[]Class{}
-	if err := db.Select(cs, `SELECT id, name, base_class_id FROM Class`); err != nil {
-		return nil, err
+	if mainClass != "" {
+		query, args, err := sqlx.In(`SELECT * FROM Class 
+									WHERE name LIKE CONCAT('%', ?, '%');`, mainClass)
+		if err != nil {
+			log.Printf("Error preparing sqlx.In statement: %s\n", err.Error())
+			return nil, err
+		}
+		query = db.Rebind(query)
+
+		cs := &[]Class{}
+		if err := db.Select(cs, query, args...); err != nil {
+			log.Printf("Error executing query %s\n %s\n", query, err.Error())
+			return nil, err
+		}
+		return cs, nil
+	} else {
+		query, args, err := sqlx.In(`SELECT id, name, base_class_id FROM Class`)
+		if err != nil {
+			log.Printf("Error preparing sqlx.In statement: %s\n", err.Error())
+			return nil, err
+		}
+		query = db.Rebind(query)
+
+		cs := &[]Class{}
+		if err := db.Select(cs, query, args...); err != nil {
+			log.Printf("Error executing query %s\n %s\n", query, err.Error())
+			return nil, err
+		}
+		return cs, nil
 	}
-	return cs, nil
 }
 
 // GetClassByName get a list of every spells that a class can use

@@ -64,7 +64,7 @@ type Datastore interface {
 
 	GetSpellClasses(spellID int) (*[]Class, error)
 
-	GetAllClasses() (*[]Class, error)
+	GetAllClasses(mainClass string) (*[]Class, error)
 	GetClassByName(name string) (*Class, error)
 	GetClassSpells(classID int) (*[]Spell, error)
 }

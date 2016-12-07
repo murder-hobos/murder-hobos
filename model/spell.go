@@ -64,7 +64,8 @@ func (s *Spell) HTMLDescription() template.HTML {
 	return template.HTML(s.Description)
 }
 
-// LevelStr fixes cantrip bullshit
+//LevelStr returns all values where level = 0 as cantrip
+//Cuz level 0 spells dont exist
 func (s *Spell) LevelStr() string {
 	if s.Level == "0" {
 		return "Cantrip"
