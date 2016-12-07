@@ -16,11 +16,12 @@ type Class struct {
 }
 
 // GetAllClasses gets a list of every class in our database
-func (db *DB) GetAllClasses(mainClass string) (*[]Class, error) {
+func (db *DB) GetAllClasses(mainClass int) (*[]Class, error) {
 
 	if mainClass != "" {
 		query, args, err := sqlx.In(`SELECT * FROM Class 
-									WHERE name LIKE CONCAT('%', ?, '%');`, mainClass)
+									WHERE id = ?
+									OR base_class_id = ?;`, mainClass, mainClass)
 		if err != nil {
 			log.Printf("Error preparing sqlx.In statement: %s\n", err.Error())
 			return nil, err

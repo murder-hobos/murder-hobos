@@ -6,137 +6,133 @@
   </div>
   <br>
   <p>Click on Name to expand class Selections</p>
-  <form class="form-inline" method="GET">
-    <div class="form-group">
-      <div class="panel-group" id="accordion">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" class="form-control" name="mainClass" href="#collapseOne" value="bard">Bard Classes</a>
-            </h4>
-          </div>
-        </div>
-        <div id="collapseOne" class="panel-collapse collapse">
-          <div class="panel-body">
-            <ul id="Class_List">
-              {{if .}} {{range .}}
-              <li><a class="Classes" name="mainClass" value="bard" Tag="Class" href="/class/{{ .Name }}"> {{.Name}}</a></li>
-              {{end}} {{else}}
-              <p>No results found!</p>
-              {{end}}
-            </ul>
-          </div>
-        </div>
+  <div class="panel-group" id="accordion" method="GET">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">Bard Classes</a>
+        </h4>
       </div>
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h4 class="panel-title">
-            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">Cleric Classes</a>
-          </h4>
-        </div>
-        <div id="collapseTwo" class="panel-collapse collapse">
-          <div class="panel-body">
-            <p>Clerics shit</p>
-          </div>
-        </div>
+    </div>
+    <div id="collapseOne" class="panel-collapse collapse">
+      <div class="panel-body">
+        <ul id="Class_List" class="mainClass" type="number" value="1">
+          {{if .}} {{range .}}
+          <li><a class="mainClass" type="number" value="1" href="/class/{{ .Name }}"> {{.Name}}</a></li>
+          {{end}} {{else}}
+          <p>No results found!</p>
+          {{end}}
+        </ul>
       </div>
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h4 class="panel-title">
-            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">Druid Classes</a>
-          </h4>
-        </div>
-        <div id="collapseThree" class="panel-collapse collapse">
-          <div class="panel-body">
-            <p>Druids shit</p>
-          </div>
-        </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">Cleric Classes</a>
+        </h4>
       </div>
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h4 class="panel-title">
-            <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">Paladin Classes</a>
-          </h4>
-        </div>
-        <div id="collapseFour" class="panel-collapse collapse">
-          <div class="panel-body">
-            <p>Paladins Shit</p>
-          </div>
-        </div>
-      </div>
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h4 class="panel-title">
-            <a data-toggle="collapse" data-parent="#accordion" href="#collapseFive">Ranger Classes</a>
-          </h4>
-        </div>
-        <div id="collapseFive" class="panel-collapse collapse">
-          <div class="panel-body">
-            <p>Rangers shit</p>
-          </div>
-        </div>
-      </div>
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h4 class="panel-title">
-            <a data-toggle="collapse" data-parent="#accordion" href="#collapseSix">Sorcerer Classes</a>
-          </h4>
-        </div>
-        <div id="collapseSix" class="panel-collapse collapse">
-          <div class="panel-body">
-            <p>Sorcerers shit</p>
-          </div>
-        </div>
-      </div>
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h4 class="panel-title">
-            <a data-toggle="collapse" data-parent="#accordion" href="#collapseSeven">Warlock Classes</a>
-          </h4>
-        </div>
-        <div id="collapseSeven" class="panel-collapse collapse">
-          <div class="panel-body">
-            <p>Warlock Shit</p>
-          </div>
-        </div>
-      </div>
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h4 class="panel-title">
-            <a data-toggle="collapse" data-parent="#accordion" href="#collapseEight">Wizard Classes</a>
-          </h4>
-        </div>
-        <div id="collapseEight" class="panel-collapse collapse">
-          <div class="panel-body">
-            <p>Wizards shit</p>
-          </div>
-        </div>
-      </div>
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h4 class="panel-title">
-            <a data-toggle="collapse" data-parent="#accordion" href="#collapseNine">Fighter Classes</a>
-          </h4>
-        </div>
-        <div id="collapseNine" class="panel-collapse collapse">
-          <div class="panel-body">
-            <p>Fighters shit</p>
-          </div>
-        </div>
-      </div>
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h4 class="panel-title">
-            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTen">Rogue Classes</a>
-          </h4>
-        </div>
-        <div id="collapseTen" class="panel-collapse collapse">
-          <div class="panel-body">
-            <p>Rogues shit</p>
-          </div>
+      <div id="collapseTwo" class="panel-collapse collapse">
+        <div class="panel-body">
+          <p>Clerics shit</p>
         </div>
       </div>
     </div>
-  </form>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">Druid Classes</a>
+        </h4>
+      </div>
+      <div id="collapseThree" class="panel-collapse collapse">
+        <div class="panel-body">
+          <p>Druids shit</p>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">Paladin Classes</a>
+        </h4>
+      </div>
+      <div id="collapseFour" class="panel-collapse collapse">
+        <div class="panel-body">
+          <p>Paladins Shit</p>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion" href="#collapseFive">Ranger Classes</a>
+        </h4>
+      </div>
+      <div id="collapseFive" class="panel-collapse collapse">
+        <div class="panel-body">
+          <p>Rangers shit</p>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion" href="#collapseSix">Sorcerer Classes</a>
+        </h4>
+      </div>
+      <div id="collapseSix" class="panel-collapse collapse">
+        <div class="panel-body">
+          <p>Sorcerers shit</p>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion" href="#collapseSeven">Warlock Classes</a>
+        </h4>
+      </div>
+      <div id="collapseSeven" class="panel-collapse collapse">
+        <div class="panel-body">
+          <p>Warlock Shit</p>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion" href="#collapseEight">Wizard Classes</a>
+        </h4>
+      </div>
+      <div id="collapseEight" class="panel-collapse collapse">
+        <div class="panel-body">
+          <p>Wizards shit</p>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion" href="#collapseNine">Fighter Classes</a>
+        </h4>
+      </div>
+      <div id="collapseNine" class="panel-collapse collapse">
+        <div class="panel-body">
+          <p>Fighters shit</p>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion" href="#collapseTen">Rogue Classes</a>
+        </h4>
+      </div>
+      <div id="collapseTen" class="panel-collapse collapse">
+        <div class="panel-body">
+          <p>Rogues shit</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {{end}}
