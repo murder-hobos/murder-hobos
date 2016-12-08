@@ -1,0 +1,19 @@
+{{define "title"}}{{.Character.Name}} - Murder Hobos{{end}} {{define "content"}}
+<br>
+<div class="container">
+  <div class="page-header">
+    <h1>The amazing <em><strong>{{.Character.Name}}</strong></em></h1>
+  </div>
+  <div class="row">
+    <div class="col-lg-6 col-md-6 col-sm-8 col-xs-8">
+      <div class="list-type">
+        <ul>
+          <li><strong>Race: </strong>{{.Character.Race}}</li>
+          <li><strong>Spell Ability Modifier: </strong>{{.Character.SpellAbilityModifier}}</li>
+          <li><strong>Proficiency Bonus: </strong>{{.Character.ProficienyBonus}}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}

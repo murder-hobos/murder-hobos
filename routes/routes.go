@@ -68,184 +68,32 @@ func New(dsn string) *mux.Router {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/", indexHandler)
-	r.HandleFunc("/class/{className}", env.classDetailsHandler)
-	r.HandleFunc("/classes", env.classesHandler)
-	r.HandleFunc("/spell/{spellName}", env.spellDetailsHandler)
-	r.HandleFunc("/spells", env.spellsSearchHandler).Queries("search", "")
-	r.HandleFunc("/spells", env.spellsHandler)
-	r.HandleFunc("/login", env.loginHandler).Methods("GET")
+	r.HandleFunc("/", rootIndex)
+	r.HandleFunc("/character/{characterName}", env.characterDetails)
+	r.HandleFunc("/character", env.characterIndex)
+	r.HandleFunc("/class/{className}", env.classDetails)
+	r.HandleFunc("/class", env.classIndex)
+	r.HandleFunc(`/spell/{spellName:[a-zA-Z '\-\/]+}`, env.spellDetails)
+
+	// TODO: explicitly list schools
+	// There is a better way than listing permutations. There
+	// has to be.
+	r.HandleFunc("/spell", env.spellSearch).Queries("name", "")
+	r.HandleFunc("/spell", env.spellFilter).Queries("school", "")
+	r.HandleFunc("/spell", env.spellFilter).Queries("level", "{level:[0-9]}")
+	r.HandleFunc("/spell", env.spellFilter).Queries("school", "", "level", "{level:[0-9]}")
+	r.HandleFunc("/spell", env.spellIndex)
+
 	r.PathPrefix("/static").HandlerFunc(staticHandler)
 	return r
 }
 
 // Index doesn't really do much for now
-func indexHandler(w http.ResponseWriter, r *http.Request) {
+func rootIndex(w http.ResponseWriter, r *http.Request) {
 	if tmpl, ok := tmpls["index.html"]; ok {
 		tmpl.ExecuteTemplate(w, "base", nil)
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
-	}
-}
-
-// List all spells. We really should chache this eventually
-// instead of hitting the db everytime
-func (env *Env) spellsHandler(w http.ResponseWriter, r *http.Request) {
-	var userID int
-
-	includeCannon := true // want to default to true, not false
-
-	if i, ok := env.getIntFromSession(r, "userID"); ok {
-		userID = i
-	}
-	if b, ok := env.getBoolFromSession(r, "includeCannon"); ok {
-		includeCannon = b
-	}
-	level := r.FormValue("level")
-	school := r.FormValue("school")
-
-	spells, err := env.db.GetAllSpells(userID, includeCannon, school, level)
-	if err != nil {
-		if err.Error() == "empty slice passed to 'in' query" || err == model.ErrNoResult {
-			// do nothing, just show no results on page (already in template)
-		} else { // something happened
-			log.Println(err.Error())
-			errorHandler(w, r, http.StatusInternalServerError)
-			return
-		}
-	}
-
-	if tmpl, ok := env.tmpls["spells.html"]; ok {
-		tmpl.ExecuteTemplate(w, "base", spells)
-	} else {
-		errorHandler(w, r, http.StatusInternalServerError)
-	}
-}
-
-func (env *Env) spellsSearchHandler(w http.ResponseWriter, r *http.Request) {
-	var userID int
-	name := r.FormValue("search")
-
-	if i, ok := env.getIntFromSession(r, "userID"); ok {
-		userID = i
-	}
-
-	spells, err := env.db.SearchSpellsByName(userID, name)
-	if err != nil {
-		if err.Error() == "empty slice passed to 'in' query" || err == model.ErrNoResult {
-			// do nothing, just show no results on page (already in template)
-		} else { // something happened
-			log.Println(err.Error())
-			errorHandler(w, r, http.StatusInternalServerError)
-			return
-		}
-	}
-
-	if tmpl, ok := env.tmpls["spells.html"]; ok {
-		tmpl.ExecuteTemplate(w, "base", spells)
-	} else {
-		errorHandler(w, r, http.StatusInternalServerError)
-	}
-}
-
-// Show information about a single spell
-func (env *Env) spellDetailsHandler(w http.ResponseWriter, r *http.Request) {
-	var userID int
-	includeCannon := true // want to default to true, not false
-
-	if i, ok := env.getIntFromSession(r, "userID"); ok {
-		userID = i
-	}
-	if b, ok := env.getBoolFromSession(r, "includeCannon"); ok {
-		includeCannon = b
-	}
-
-	name := mux.Vars(r)["spellName"]
-
-	s, err := env.db.GetSpellByName(name, userID, includeCannon)
-	if err != nil {
-		log.Printf("Error getting spell by name: %s, userID: %d, isCannon: %t\n", name, s.ID, true)
-		log.Printf(err.Error())
-		errorHandler(w, r, http.StatusNotFound)
-		return
-	}
-
-	cs, err := env.db.GetSpellClasses(s.ID)
-	// we shouldn't have an error at this point, we should have a spell
-	if err != nil {
-		log.Printf("Error getting spell classes with id %d\n", s.ID)
-		log.Println(err.Error())
-		errorHandler(w, r, http.StatusInternalServerError)
-		return
-	}
-
-	if tmpl, ok := env.tmpls["spell-details.html"]; ok {
-		data := struct {
-			Spell   *model.Spell
-			Classes *[]model.Class
-		}{
-			s,
-			cs,
-		}
-		tmpl.ExecuteTemplate(w, "base", data)
-	} else {
-		errorHandler(w, r, http.StatusInternalServerError)
-		log.Printf("Error loading template for spell-details\n")
-		return
-	}
-}
-
-// lists all classes
-func (env *Env) classesHandler(w http.ResponseWriter, r *http.Request) {
-	cs, err := env.db.GetAllClasses()
-	if err != nil {
-		log.Println("Classes handler: " + err.Error())
-		errorHandler(w, r, http.StatusInternalServerError)
-		return
-	}
-
-	if tmpl, ok := env.tmpls["classes.html"]; ok {
-		tmpl.ExecuteTemplate(w, "base", cs)
-	} else {
-		errorHandler(w, r, http.StatusInternalServerError)
-		log.Printf("Error loading template for classes\n")
-		return
-	}
-}
-
-// Shows a list of all spells available to a class
-func (env *Env) classDetailsHandler(w http.ResponseWriter, r *http.Request) {
-	name := mux.Vars(r)["className"]
-	c := &model.Class{}
-
-	c, err := env.db.GetClassByName(name)
-	if err != nil {
-		log.Printf("Error getting Class by name: %s\n", name)
-		log.Printf(err.Error())
-		errorHandler(w, r, http.StatusNotFound)
-		return
-	}
-
-	spells, err := env.db.GetClassSpells(c.ID)
-	if err != nil {
-		log.Println("Class-detail handler" + err.Error())
-		errorHandler(w, r, http.StatusInternalServerError)
-		return
-	}
-
-	data := struct {
-		Class  *model.Class
-		Spells *[]model.Spell
-	}{
-		c,
-		spells,
-	}
-	if tmpl, ok := env.tmpls["class-details.html"]; ok {
-		tmpl.ExecuteTemplate(w, "base", data)
-	} else {
-		errorHandler(w, r, http.StatusInternalServerError)
-		log.Printf("Error loading template for class-details\n")
-		return
 	}
 }
 
