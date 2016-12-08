@@ -66,6 +66,8 @@ CREATE TABLE ClassSpells (
     FOREIGN KEY (class_id) REFERENCES Class(id)
 );
 
+CREATE VIEW CannonSpells AS SELECT * FROM Spell WHERE source_id IN (1, 2, 3);
+
 -- Initialize our strong entities
 
 INSERT INTO `User` (id, username, password) VALUES
