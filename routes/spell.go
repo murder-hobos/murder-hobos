@@ -5,17 +5,39 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/justinas/alice"
 	"github.com/murder-hobos/murder-hobos/model"
 )
 
+func newSpellRouter(env *Env) *mux.Router {
+	stdChain := alice.New(env.withClaims)
+	r := mux.NewRouter()
+
+	r.HandleFunc(`/spell/{spellName:[a-zA-Z '\-\/]+}`, env.spellDetails)
+	r.Handle("/spell", stdChain.ThenFunc(env.spellSearch)).Queries("name", "")
+	r.Handle("/spell", stdChain.ThenFunc(env.spellFilter)).Queries("school", "")
+	r.Handle("/spell", stdChain.ThenFunc(env.spellFilter)).Queries("level", "{level:[0-9]}")
+	r.Handle("/spell", stdChain.ThenFunc(env.spellFilter)).Queries("school", "", "level", "{level:[0-9]}")
+	r.Handle("/spell", stdChain.ThenFunc(env.spellIndex))
+
+	return r
+}
+
 func (env *Env) spellIndex(w http.ResponseWriter, r *http.Request) {
+	claims := r.Context().Value("Claims")
+
 	spells, err := env.db.GetAllCannonSpells()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
+	data := map[string]interface{}{
+		"Spells": spells,
+		"Claims": claims,
+	}
+
 	if tmpl, ok := env.tmpls["spells.html"]; ok {
-		tmpl.ExecuteTemplate(w, "base", spells)
+		tmpl.ExecuteTemplate(w, "base", data)
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
 		return
@@ -23,6 +45,8 @@ func (env *Env) spellIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func (env *Env) spellFilter(w http.ResponseWriter, r *http.Request) {
+	claims := r.Context().Value("Claims")
+
 	level := r.FormValue("level")
 	school := r.FormValue("school")
 
@@ -37,14 +61,20 @@ func (env *Env) spellFilter(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	data := map[string]interface{}{
+		"Spells": spells,
+		"Claims": claims,
+	}
+
 	if tmpl, ok := env.tmpls["spells.html"]; ok {
-		tmpl.ExecuteTemplate(w, "base", spells)
+		tmpl.ExecuteTemplate(w, "base", data)
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
 	}
 }
 
 func (env *Env) spellSearch(w http.ResponseWriter, r *http.Request) {
+	claims := r.Context().Value("claims")
 	name := r.FormValue("name")
 
 	spells, err := env.db.SearchCannonSpells(name)
@@ -58,8 +88,13 @@ func (env *Env) spellSearch(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	data := map[string]interface{}{
+		"Spells": spells,
+		"Claims": claims,
+	}
+
 	if tmpl, ok := env.tmpls["spells.html"]; ok {
-		tmpl.ExecuteTemplate(w, "base", spells)
+		tmpl.ExecuteTemplate(w, "base", data)
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
 	}
@@ -67,6 +102,7 @@ func (env *Env) spellSearch(w http.ResponseWriter, r *http.Request) {
 
 // Show information about a single spell
 func (env *Env) spellDetails(w http.ResponseWriter, r *http.Request) {
+	claims := r.Context().Value("claims")
 	name := mux.Vars(r)["spellName"]
 
 	spell, err := env.db.GetCannonSpellByName(name)
@@ -86,14 +122,13 @@ func (env *Env) spellDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	data := map[string]interface{}{
+		"Spell":   spell,
+		"Classes": classes,
+		"Claims":  claims,
+	}
+
 	if tmpl, ok := env.tmpls["spell-details.html"]; ok {
-		data := struct {
-			Spell   *model.Spell
-			Classes *[]model.Class
-		}{
-			spell,
-			classes,
-		}
 		tmpl.ExecuteTemplate(w, "base", data)
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
