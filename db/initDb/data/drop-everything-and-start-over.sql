@@ -1,5 +1,6 @@
 SET foreign_key_checks = 0;
 DROP TABLE IF EXISTS `User`, Spell, Class, ClassSpells, CharacterLevels, `Character`;
+DROP VIEW IF EXISTS `CannonSpells`;
 SET foreign_key_checks = 1;
 
 -- Create tables for murder-hobos

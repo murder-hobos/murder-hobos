@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
-	"github.com/gorilla/sessions"
+	"github.com/justinas/alice"
 	"github.com/murder-hobos/murder-hobos/model"
 )
 
@@ -17,17 +17,11 @@ var (
 	tmpls map[string]*template.Template
 )
 
-const (
-	sessionKey = "murder-hobos"
-)
-
 // Env is a struct that defines an enviornment for server request handling.
 // It allows us to specify different combinations of datastores, templates,
-// and session stores
 type Env struct {
 	db    model.Datastore
 	tmpls map[string]*template.Template
-	store *sessions.CookieStore
 }
 
 func init() {
@@ -58,40 +52,40 @@ func init() {
 // Panics if unable to connect to datastore with given dsn
 // (don't want the server to start without database access)
 func New(dsn string) *mux.Router {
-	store := sessions.NewCookieStore([]byte("super-secret-key-that-is-totally-secure"))
-
 	db, err := model.NewDB(dsn)
 	if err != nil {
 		panic(err)
 	}
-	env := &Env{db, tmpls, store}
+	env := &Env{db, tmpls}
+
+	stdChain := alice.New(env.withClaims)
 
 	r := mux.NewRouter()
-
-	r.HandleFunc("/", rootIndex)
+	r.Handle("/spell", newSpellRouter(env))
+	r.Handle("/class", newClassRouter(env))
 	r.HandleFunc("/character/{characterName}", env.characterDetails)
 	r.HandleFunc("/character", env.characterIndex)
-	r.HandleFunc("/class/{className}", env.classDetails)
-	r.HandleFunc("/class", env.classIndex)
-	r.HandleFunc(`/spell/{spellName:[a-zA-Z '\-\/]+}`, env.spellDetails)
+	r.Handle("/", stdChain.ThenFunc(rootIndex))
 
-	// TODO: explicitly list schools
-	// There is a better way than listing permutations. There
-	// has to be.
-	r.HandleFunc("/spell", env.spellSearch).Queries("name", "")
-	r.HandleFunc("/spell", env.spellFilter).Queries("school", "")
-	r.HandleFunc("/spell", env.spellFilter).Queries("level", "{level:[0-9]}")
-	r.HandleFunc("/spell", env.spellFilter).Queries("school", "", "level", "{level:[0-9]}")
+	r.HandleFunc("/login", env.loginIndex).Methods("GET")
+	r.HandleFunc("/login", env.loginProcess).Methods("POST")
+	//r.HandleFunc("/login/register", env.loginRegister).Methods("POST")
+	r.HandleFunc("/logout", env.logoutProcess)
 
-	r.HandleFunc("/spell", env.spellIndex)
 	r.PathPrefix("/static").HandlerFunc(staticHandler)
 	return r
 }
 
 // Index doesn't really do much for now
 func rootIndex(w http.ResponseWriter, r *http.Request) {
+	claims := r.Context().Value("Claims")
+
+	data := map[string]interface{}{
+		"Claims": claims,
+	}
+
 	if tmpl, ok := tmpls["index.html"]; ok {
-		tmpl.ExecuteTemplate(w, "base", nil)
+		tmpl.ExecuteTemplate(w, "base", data)
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
 	}
@@ -130,50 +124,4 @@ func errorHandler(w http.ResponseWriter, r *http.Request, status int) {
 
 	vars := map[string]string{"Title": title, "Message": message}
 	tmpl.ExecuteTemplate(w, "base", vars)
-}
-
-// litle utils
-func (env *Env) getStringFromSession(r *http.Request, key string) (string, bool) {
-	sess, err := env.store.Get(r, sessionKey)
-	if err != nil {
-		return "", false
-	}
-	val, ok := sess.Values[key]
-	if !ok {
-		return "", false
-	}
-	if s, ok := val.(string); ok {
-		return s, true
-	}
-	return "", false
-}
-
-func (env *Env) getIntFromSession(r *http.Request, key string) (int, bool) {
-	sess, err := env.store.Get(r, sessionKey)
-	if err != nil {
-		return 0, false
-	}
-	val, ok := sess.Values[key]
-	if !ok {
-		return 0, false
-	}
-	if i, ok := val.(int); ok {
-		return i, true
-	}
-	return 0, false
-}
-
-func (env *Env) getBoolFromSession(r *http.Request, key string) (bool, bool) {
-	sess, err := env.store.Get(r, sessionKey)
-	if err != nil {
-		return false, false
-	}
-	val, ok := sess.Values[key]
-	if !ok {
-		return false, false
-	}
-	if b, ok := val.(bool); ok {
-		return b, true
-	}
-	return false, false
 }

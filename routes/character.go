@@ -11,9 +11,6 @@ import (
 // List characters
 func (env *Env) characterIndex(w http.ResponseWriter, r *http.Request) {
 	var userID int
-	if i, ok := env.getIntFromSession(r, "UserID"); ok {
-		userID = i
-	}
 
 	//we will need to make this specific to userID soon on an account by account basis
 	characters, err := env.db.GetAllCharacters(userID)
@@ -37,9 +34,6 @@ func (env *Env) characterIndex(w http.ResponseWriter, r *http.Request) {
 // Information about specific character
 func (env *Env) characterDetails(w http.ResponseWriter, r *http.Request) {
 	var userID int
-	if i, ok := env.getIntFromSession(r, "UserID"); ok {
-		userID = i
-	}
 	name := mux.Vars(r)["characterName"]
 
 	c := &model.Character{}

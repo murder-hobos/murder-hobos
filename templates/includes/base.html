@@ -34,13 +34,25 @@
                     <li><a href="/class">Classes</a></li>
                     <li><a href="/character">Characters</a></li>
                 </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {{if .Claims}}
+                    <li>
+                        <a href="/user">{{.Claims.Username}}</a>
+                    </li>
+                    <li>
+                        <a href="/logout">Logout</a>
+                    </li>
+                    {{else}}
+                    <li><a href="/login">Login</a></li>
+                    {{end}}
+                </ul>
             </div>
             <!--/.nav-collapse -->
         </div>
     </nav>
     {{template "content" .}}
     <script type="text/javascript" src="/static/js/jquery-3.1.1.min.js"></script>
-    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script> {{template "scripts" .}}
     <footer class="footer">
         <hr/>
         <div class="container">

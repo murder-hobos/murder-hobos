@@ -56,7 +56,7 @@
         </tr>
       </thread>
       <tbody id="Spell_List">
-        {{if .}} {{range .}}
+        {{if .Spells}} {{range .Spells}}
         <tr>
           <td><a class="Spells" Tag="Spell" href="/spell/{{ .Name }}">{{.Name}}</td>
         <td>{{.School}}</td>
@@ -74,4 +74,4 @@
     </div>
 </div>
 </div>
-{{end}}
+{{end}} {{define "scripts"}}{{end}}

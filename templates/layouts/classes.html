@@ -7,7 +7,7 @@
   <div class="row">
     <div class="col-lg-8 col-md-8 col-sm-10 col-xs-10 list-type">
       <ul id="Class_List">
-        {{if .}} {{range .}}
+        {{if .Classes}} {{range .Classes}}
         <li><a class="Classes" Tag="Class" href="/class/{{ .Name }}"> {{.Name}}</a></li>
         {{end}} {{else}}
         <p>No results found!</p>
@@ -16,4 +16,4 @@
     </div>
   </div>
 </div>
-{{end}}
+{{end}} {{define "scripts"}}{{end}}

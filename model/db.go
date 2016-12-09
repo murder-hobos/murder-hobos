@@ -29,6 +29,7 @@ type Datastore interface {
 	SpellDatastore
 	ClassDatastore
 	CharacterDatastore
+	UserDatastore
 }
 
 // DB is a wrapper struct for our database connection that we
@@ -40,7 +41,7 @@ type DB struct {
 // NewDB returns an initialized DB connected to the mysql database
 // described by the given DataSourceName. If an error is encountered,
 // nil is returned, along with the error. func NewDB(dsn string) (*DB, error) {
-func NewDB(dsn string) (*DB, error) {
+func NewDB(dsn string) (Datastore, error) {
 	db, err := sqlx.Open("mysql", dsn)
 	if err != nil {
 		return nil, err
