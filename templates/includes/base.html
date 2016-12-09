@@ -30,18 +30,21 @@
             </div>
             <div id="navbar" class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
-<<<<<<< HEAD
-                    <li><a href="/spells">Spells</a></li>
-                    <li><a href="/classes">Classes</a></li>
-                    {{if .User}}
-                    <li><a href="/user/{{User.id}}">Hello, {{.User.Username}}!</a></li>
-                    {{else}}
-                    <li><a href="/login">Login</a></li>
-=======
                     <li><a href="/spell">Spells</a></li>
                     <li><a href="/class">Classes</a></li>
                     <li><a href="/character">Characters</a></li>
->>>>>>> dev
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {{if .Claims}}
+                    <li>
+                        <a href="/user">{{.Claims.Username}}</a>
+                    </li>
+                    <li>
+                        <a href="/logout">Logout</a>
+                    </li>
+                    {{else}}
+                    <li><a href="/login">Login</a></li>
+                    {{end}}
                 </ul>
             </div>
             <!--/.nav-collapse -->
