@@ -185,3 +185,20 @@ func (env *Env) newSpellIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (env *Env) userProfileIndex(w http.ResponseWriter, r *http.Request) {
+	claims, _ := r.Context().Value("Claims").(Claims)
+
+	data := map[string]interface{}{
+		"Claims": claims,
+	}
+
+	if tmpl, ok := env.tmpls["profile.html"]; ok {
+		tmpl.ExecuteTemplate(w, "base", data)
+	} else {
+		errorHandler(w, r, http.StatusInternalServerError)
+		log.Printf("Error loading template for spell-creator\n")
+		return
+	}
+
+}

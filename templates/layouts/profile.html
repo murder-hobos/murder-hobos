@@ -2,10 +2,14 @@
 <br>
 <div class="container">
     <div class="page-header">
-        <h1>Here's Your Profile, {{.Username}}</h1>
+        <h1>Here's Your Profile, {{.Claims.Username}}</h1>
     </div>
     <div class="row">
-        <a>We will have some stuff for you here in the future!</a>
+        <div class="col-md-6">
+            <p>We will have some stuff for you here in the future!</p>
+            <p>For now, try hovering over your name in the navigation bar to have a look at your spells and characters.
+            </p>
+        </div>
     </div>
 </div>
-{{end}} {{define "scripts"}}{{end}}
+{{end}}{{define "scripts"}}{{end}}
