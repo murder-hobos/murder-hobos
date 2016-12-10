@@ -1,74 +1,70 @@
 {{define "title"}}Create Spell - Murder Hobos{{end}} {{define "content"}}
 <br>
-<div class="container">
-    <div class="page-header">
-        <h1>Spell Creator</h1>
-    </div>
-    <div class="row">
-        <div class="col-md-6">
-            <form class="form" method="POST">
-                <div class="form-group" name="nameEntry">
-                    <a>Name: </a>
-                    <input required type="text" name="name" value="name"></input>
-                </div>
-                <div class="form-group" name="schoolSelection">
-                    <a>School: </a>
-                    <select required class="form-control" name="school">
-                        <option selected disabled value="">Select School</option>
-                        <option value="Abjuration">Abjuration</option>
-                        <option value="Conjuration">Conjuration</option>
-                        <option value="Divination">Divination</option>
-                        <option value="Enchantment">Enchantment</option>
-                        <option value="Evocation">Evocation</option>
-                        <option value="Illusion">Illusion</option>
-                        <option value="Necromancy">Necromancy</option>
-                        <option value="Transmutation">Transmutation</option>
-                    </select>
-                </div>
-                <div class="form-group" name="LevelSelection">
-                    <a>Name: </a>
-                    <select required class="form-control" name="level">
-                        <option selected disabled value="">Select Level</option>
-                        <option value="0">Cantrip</option>
-                        <option value="1">Level 1</option>
-                        <option value="2">Level 2</option>
-                        <option value="3">Level 3</option>
-                        <option value="4">Level 4</option>
-                        <option value="5">Level 5</option>
-                        <option value="6">Level 6</option>
-                        <option value="7">Level 7</option>
-                        <option value="8">Level 8</option>
-                        <option value="9">Level 9</option>
-                    </select>
-                </div>
-                <div class="form-group" name="castTimeEntry">
-                    <a>Cast Time: </a>
-                    <input required type="text" name="castTime" value="castTime"></input>
-                </div>
-                <div class="form-group" name="durationEntry">
-                    <a>Duration: </a>
-                    <input required type="text" name="duration" value="duration"></input>
-                </div>
-                <div class="form-group" name="components">
-                    <a>Components: </a>
-                    <input type="checkbox" name="verbal" value="verbal">Verbal</input>
-                    <input type="checkbox" name="somatic" value="somatic">Somatic</input>
-                    <input type="checkbox" name="material" value="material">Material</input>
-                    <a>Material Description: </a>
-                    <input type="text" name "materialDesc" value="materialDesc">Enter Description...<input>
-                </div>
-                <div class="form-group" name="spellType">
-                    <a>Spell Requirements: </a>
-                    <input type="checkbox" name="concentration" value="concentration">Concentration</input>
-                    <input type="checkbox" name="ritual" value="ritual">Ritual</input>
-                </div>
-                <div class="form-group" name="spellDescript">
-                    <a>Spell Decription: </a>
-                    <input required type="text" name="spellDesc" value="spellDesc"></input>
-                </div>
-                <input class="btn btn-primary" type="submit" value="Create Spell"></input>
-            </form>
+<div class="page-header">
+    <h1>Spell Creator</h1>
+</div>
+<div>
+    <form class="form" method="POST">
+        <div class="form-group" name="nameEntry">
+            <labela>Name: </label>
+                <input required type="text" name="name"></input>
         </div>
-    </div>
+        <div class="form-group" name="schoolSelection">
+            <label>School: </label>
+            <select required class="form-control" name="school">
+                <option selected disabled value="">Select School</option>
+                <option value="Abjuration">Abjuration</option>
+                <option value="Conjuration">Conjuration</option>
+                <option value="Divination">Divination</option>
+                <option value="Enchantment">Enchantment</option>
+                <option value="Evocation">Evocation</option>
+                <option value="Illusion">Illusion</option>
+                <option value="Necromancy">Necromancy</option>
+                <option value="Transmutation">Transmutation</option>      
+            </select>
+        </div>
+        <div class="form-group" name="LevelSelection">
+            <label>Level: </label>
+            <select required class="form-control" name="level">
+                <option selected disabled value="">Select Level</option>
+                <option value="0">Cantrip</option>
+                <option value="1">Level 1</option>
+                <option value="2">Level 2</option>
+                <option value="3">Level 3</option>
+                <option value="4">Level 4</option>
+                <option value="5">Level 5</option>
+                <option value="6">Level 6</option>
+                <option value="7">Level 7</option>
+                <option value="8">Level 8</option>
+                <option value="9">Level 9</option>
+            </select>
+        </div>
+        <div class="form-group" name="castTimeEntry">
+            <label>Cast Time: </label>
+            <input required type="text" name="castTime" value="castTime"></input>
+        </div>
+        <div class="form-group" name="durationEntry">
+            <label>Duration: </label>
+            <input required type="text" name="duration" value="duration"></input>
+        </div>
+        <div class="form-group" name="components">
+            <label>Components: </label>
+            <input type="checkbox" name="verbal" value="verbal">Verbal</input>
+            <input type="checkbox" name="somatic" value="somatic">Somatic</input>
+            <input type="checkbox" name="material" value="material">Material</input>
+            <label>Material Description: </label>
+            <input type="text" name "materialDesc" value="materialDesc">Enter Description...<input>
+        </div>
+        <div class="form-group" name="spellType">
+            <label>Spell Requirements: </label>
+            <input type="checkbox" name="concentration" value="concentration">Concentration</input>
+            <input type="checkbox" name="ritual" value="ritual">Ritual</input>
+        </div>
+        <div class="form-group" name="spellDescript">
+            <label>Spell Decription: </label>
+            <input required type="text" name="spellDesc" value="spellDesc"></input>
+        </div>
+        <input class="btn btn-primary" type="submit" value="Create Spell"></input>
+    </form>
 </div>
 {{end}}{{define "scripts"}}{{end}}
