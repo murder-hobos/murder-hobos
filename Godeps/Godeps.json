@@ -2,5 +2,86 @@
 	"ImportPath": "github.com/murder-hobos/murder-hobos",
 	"GoVersion": "go1.7",
 	"GodepVersion": "v74",
-	"Deps": []
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/Masterminds/squirrel",
+			"Rev": "20f192218cf52a73397fa2df45bdda720f3e47c8"
+		},
+		{
+			"ImportPath": "github.com/davecgh/go-spew/spew",
+			"Comment": "v1.0.0-9-g346938d",
+			"Rev": "346938d642f2ec3594ed81d874461961cd0faa76"
+		},
+		{
+			"ImportPath": "github.com/dgrijalva/jwt-go",
+			"Comment": "v3.0.0-10-g9ed569b",
+			"Rev": "9ed569b5d1ac936e6494082958d63a6aa4fff99a"
+		},
+		{
+			"ImportPath": "github.com/fatih/color",
+			"Comment": "v1.1.0-4-gbf82308",
+			"Rev": "bf82308e8c8546dc2b945157173eb8a959ae9505"
+		},
+		{
+			"ImportPath": "github.com/go-sql-driver/mysql",
+			"Comment": "v1.2-198-g0b58b37",
+			"Rev": "0b58b37b664c21f3010e836f1b931e1d0b0b0685"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Comment": "v1.1-27-g757bef9",
+			"Rev": "757bef944d0f21880861c2dd9c871ca543023cba"
+		},
+		{
+			"ImportPath": "github.com/jmoiron/sqlx",
+			"Comment": "sqlx-v1.1-82-g5f97679",
+			"Rev": "5f97679e23f75f42b265fec8d3bdb1c8de90b79d"
+		},
+		{
+			"ImportPath": "github.com/jmoiron/sqlx/reflectx",
+			"Comment": "sqlx-v1.1-82-g5f97679",
+			"Rev": "5f97679e23f75f42b265fec8d3bdb1c8de90b79d"
+		},
+		{
+			"ImportPath": "github.com/justinas/alice",
+			"Comment": "1.0.0-16-g1051eaf",
+			"Rev": "1051eaf52fcafdd87ead59d28b065f1fcb8274ec"
+		},
+		{
+			"ImportPath": "github.com/lann/builder",
+			"Rev": "f22ce00fd9394014049dad11c244859432bd6820"
+		},
+		{
+			"ImportPath": "github.com/lann/ps",
+			"Rev": "62de8c46ede02a7675c4c79c84883eb164cb71e3"
+		},
+		{
+			"ImportPath": "github.com/mattn/go-colorable",
+			"Comment": "v0.0.6-9-gd228849",
+			"Rev": "d228849504861217f796da67fae4f6e347643f15"
+		},
+		{
+			"ImportPath": "github.com/mattn/go-isatty",
+			"Rev": "66b8e73f3f5cda9f96b69efd03dd3d7fc4a5cdb8"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/bcrypt",
+			"Rev": "14f9af67c679edd414f72f13d67c917447113df2"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/blowfish",
+			"Rev": "14f9af67c679edd414f72f13d67c917447113df2"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/ssh/terminal",
+			"Rev": "14f9af67c679edd414f72f13d67c917447113df2"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "b699b7032584f0953262cb2788a0ca19bb494703"
+		}
+	]
 }
