@@ -5,22 +5,11 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/justinas/alice"
 )
-
-func newClassRouter(env *Env) *mux.Router {
-	stdChain := alice.New(env.withClaims)
-	r := mux.NewRouter()
-
-	r.Handle("/class/{className}", stdChain.ThenFunc(env.classDetails))
-	r.Handle("/class", stdChain.ThenFunc(env.classIndex))
-
-	return r
-}
 
 // lists all classes
 func (env *Env) classIndex(w http.ResponseWriter, r *http.Request) {
-	claims := r.Context().Value("claims")
+	claims := r.Context().Value("Claims")
 
 	cs, err := env.db.GetAllClasses()
 	if err != nil {

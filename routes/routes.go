@@ -59,18 +59,32 @@ func New(dsn string) *mux.Router {
 	env := &Env{db, tmpls}
 
 	stdChain := alice.New(env.withClaims)
-
 	r := mux.NewRouter()
-	r.Handle("/spell", newSpellRouter(env))
-	r.Handle("/class", newClassRouter(env))
+
+	// SPELL
+	r.HandleFunc(`/spell/{spellName:[a-zA-Z '\-\/]+}`, env.spellDetails)
+	r.Handle("/spell", stdChain.ThenFunc(env.spellSearch)).Queries("name", "")
+	r.Handle("/spell", stdChain.ThenFunc(env.spellFilter)).Queries("school", "")
+	r.Handle("/spell", stdChain.ThenFunc(env.spellFilter)).Queries("level", "{level:[0-9]}")
+	r.Handle("/spell", stdChain.ThenFunc(env.spellFilter)).Queries("school", "", "level", "{level:[0-9]}")
+	r.Handle("/spell", stdChain.ThenFunc(env.spellIndex))
+
+	// CLASS
+	r.Handle("/class/{className}", stdChain.ThenFunc(env.classDetails))
+	r.Handle("/class", stdChain.ThenFunc(env.classIndex))
+
+	// AUTH
+	r.Handle("/login", stdChain.ThenFunc(env.loginIndex)).Methods("GET")
+	r.Handle("/login", stdChain.ThenFunc(env.loginProcess)).Methods("POST")
+	r.Handle("/register", stdChain.ThenFunc(env.registerProcess)).Methods("POST")
+	r.Handle("/logout", stdChain.ThenFunc(env.logoutProcess))
+
+	// USER
 	r.HandleFunc("/character/{characterName}", env.characterDetails)
 	r.HandleFunc("/character", env.characterIndex)
-	r.Handle("/", stdChain.ThenFunc(rootIndex))
 
-	r.HandleFunc("/login", env.loginIndex).Methods("GET")
-	r.HandleFunc("/login", env.loginProcess).Methods("POST")
-	//r.HandleFunc("/login/register", env.loginRegister).Methods("POST")
-	r.HandleFunc("/logout", env.logoutProcess)
+	// ROOT
+	r.Handle("/", stdChain.ThenFunc(rootIndex))
 
 	r.PathPrefix("/static").HandlerFunc(staticHandler)
 	return r

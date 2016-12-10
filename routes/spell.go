@@ -5,23 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/justinas/alice"
 	"github.com/murder-hobos/murder-hobos/model"
 )
-
-func newSpellRouter(env *Env) *mux.Router {
-	stdChain := alice.New(env.withClaims)
-	r := mux.NewRouter()
-
-	r.HandleFunc(`/spell/{spellName:[a-zA-Z '\-\/]+}`, env.spellDetails)
-	r.Handle("/spell", stdChain.ThenFunc(env.spellSearch)).Queries("name", "")
-	r.Handle("/spell", stdChain.ThenFunc(env.spellFilter)).Queries("school", "")
-	r.Handle("/spell", stdChain.ThenFunc(env.spellFilter)).Queries("level", "{level:[0-9]}")
-	r.Handle("/spell", stdChain.ThenFunc(env.spellFilter)).Queries("school", "", "level", "{level:[0-9]}")
-	r.Handle("/spell", stdChain.ThenFunc(env.spellIndex))
-
-	return r
-}
 
 func (env *Env) spellIndex(w http.ResponseWriter, r *http.Request) {
 	claims := r.Context().Value("Claims")
@@ -74,7 +59,7 @@ func (env *Env) spellFilter(w http.ResponseWriter, r *http.Request) {
 }
 
 func (env *Env) spellSearch(w http.ResponseWriter, r *http.Request) {
-	claims := r.Context().Value("claims")
+	claims := r.Context().Value("Claims")
 	name := r.FormValue("name")
 
 	spells, err := env.db.SearchCannonSpells(name)
