@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/jaden-young/murder-hobos/util"
 	"github.com/murder-hobos/murder-hobos/model"
+	"github.com/murder-hobos/murder-hobos/util"
 )
 
 func (env *Env) userSpellIndex(w http.ResponseWriter, r *http.Request) {
