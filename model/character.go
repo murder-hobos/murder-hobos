@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"database/sql"
-	"github.com/yosssi/ace"
 )
 
 // CharacterDatastore describes methods available on our database
@@ -55,5 +54,5 @@ func (db *DB) GetCharacterByName(userID int, name string) (*Character, error) {
 }
 
 func (db *DB) CreateCharacter(userID int, *Character) (int, error) {
-	res, err := db.Exec(`INSERT INTO `+"`Character`")
+	res, err := db.Exec(`INSERT INTO `+"`Character` " + `()`) 
 }
