@@ -55,48 +55,37 @@
                 <input required type="text" name="castTime" />
             </div>
             <div class="form-group" name="durationEntry">
+                <label>Range: </label>
+                <input required type="text" name="range" />
+            </div>
+            <div class="form-group" name="durationEntry">
                 <label>Duration: </label>
                 <input required type="text" name="duration" />
             </div>
             <div class="form-group form-inline" name="components">
-                <label>Verbal</label>
-                <select required class="selectpicker" name="verbal">
-                    <option selected disabled value="">-</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                </select>
-                <label>Somatic</label>
-                <select required class="selectpicker" name="somatic">
-                    <option selected disabled value="">-</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-               </select>
-                <label>Material</label>
-                <select required class="selectpicker" name="material">
-                    <option selected disabled value="">-</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                </select>
+                <label>Components: </label>
+                <br>
+                <div class="checkbox">
+                    <label><input type="checkbox" name="verbal" value="1">Verbal</label>
+                </div>
+                <div class="checkbox">
+                    <label><input type="checkbox" name="somatic" value="1">Somatic</label>
+                </div>
+                <div class="checkbox">
+                    <label><input type="checkbox" name="material" value="1">Material</label>
+                </div>
             </div>
             <div class="form-group">
                 <label>Material Description: </label>
                 <input type="text" name="materialDesc" />
             </div>
-            <div class="form-group" name="spellType">
-                <label>Spell Requirements: </label>
-                <div></div>
-                <label>Concentration</label>
-                <select required class="selectpicker" name="concentration">
-                <option selected disabled value="">-</option>
-                <option value="true">Yes</option>
-                <option value="false">No</option>
-            </select>
-                <label>Ritual</label>
-                <select required class="select-picker" name="ritual">
-                <option selected disabled value="">-</option>
-                <option value="true">Yes</option>
-                <option value="false">No</option>
-            </select>
+            <div class="form-group form-inline" name="spellType">
+                <div class="checkbox">
+                    <label><input type="checkbox" name="ritual" value="1">Ritual</label>
+                </div>
+                <div class="checkbox">
+                    <label><input type="checkbox" name="concentration" value="1">Concentration</label>
+                </div>
             </div>
             <div class="form-group" name="spellDescript">
                 <label>Spell Decription: </label>

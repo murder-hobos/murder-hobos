@@ -81,7 +81,9 @@ func (s *Spell) ComponentsStr() string {
 // so that the HTML in the description will be rendered instead of
 // escaped in go's templating engine
 func (s *Spell) HTMLDescription() template.HTML {
-	return template.HTML(s.Description)
+	rep := strings.NewReplacer("\r\n", "<br>", "\n", "<br>")
+	desc := rep.Replace(s.Description)
+	return template.HTML(desc)
 }
 
 // LevelStr provides the spell's level as a string, with "Cantrip" for level 0

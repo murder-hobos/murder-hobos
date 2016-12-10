@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"html"
 	"log"
 	"net/http"
 	"strconv"
@@ -130,39 +131,38 @@ func (env *Env) userSpellDetails(w http.ResponseWriter, r *http.Request) {
 func (env *Env) newSpellProcess(w http.ResponseWriter, r *http.Request) {
 	claims := r.Context().Value("Claims").(Claims)
 
-	r.ParseForm()
-	name := r.FormValue("name")
-	school := r.FormValue("school")
-	level := r.FormValue("level")
-	castTime := r.FormValue("castTime")
-	duration := r.FormValue("duration")
-	ran := r.FormValue("range")
-	verbal, _ := strconv.ParseBool(r.FormValue("verbal"))
-	somatic, _ := strconv.ParseBool(r.FormValue("somatic"))
-	material, _ := strconv.ParseBool(r.FormValue("material"))
-	materialDesc := util.ToNullString(r.FormValue("materialDesc"))
-	conc, _ := strconv.ParseBool(r.FormValue("concentration"))
-	ritual, _ := strconv.ParseBool(r.FormValue("ritual"))
-	desc := r.FormValue("spellDesc")
+	name := r.PostFormValue("name")
+	school := r.PostFormValue("school")
+	level := r.PostFormValue("level")
+	castTime := r.PostFormValue("castTime")
+	duration := r.PostFormValue("duration")
+	ran := r.PostFormValue("range")
+	verbal := r.PostFormValue("verbal") != ""
+	somatic := r.PostFormValue("somatic") != ""
+	material := r.PostFormValue("material") != ""
+	materialDesc := util.ToNullString(r.PostFormValue("materialDesc"))
+	conc := r.PostFormValue("concentration") != ""
+	ritual := r.PostFormValue("ritual") != ""
+	desc := html.EscapeString(r.PostFormValue("spellDesc"))
 	sourceID := claims.UID
-
 	spell := &model.Spell{
-		0,
-		name,
-		level,
-		school,
-		castTime,
-		duration,
-		ran,
-		verbal,
-		somatic,
-		material,
-		materialDesc,
-		conc,
-		ritual,
-		desc,
-		sourceID,
+		ID:            0,
+		Name:          name,
+		Level:         level,
+		School:        school,
+		CastTime:      castTime,
+		Duration:      duration,
+		Range:         ran,
+		Verbal:        verbal,
+		Somatic:       somatic,
+		Material:      material,
+		MaterialDesc:  materialDesc,
+		Concentration: conc,
+		Ritual:        ritual,
+		Description:   desc,
+		SourceID:      sourceID,
 	}
+
 	if _, err := env.db.CreateSpell(claims.UID, *spell); err != nil {
 		errorHandler(w, r, http.StatusInternalServerError)
 		log.Println(err.Error())
