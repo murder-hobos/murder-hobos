@@ -5,7 +5,7 @@
     <h1>Here are all of your characters.</h1>
   </div>
   <div class="row">
-    <div class="col-lg-8 col-md-8 col-sm-10 col-xs-10 list-type">
+    <div class="col-md-6">
       <ul id="Character_List">
         {{if .Character}} {{range .Character}}
         <li>
@@ -15,6 +15,9 @@
         <p>No results found!</p>
         {{end}}
       </ul>
+    </div>
+    <div class="col-md-6">
+      <a class="btn btn-success" href="/user/character/new">New</a>
     </div>
   </div>
 </div>

@@ -3,9 +3,11 @@ package routes
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/murder-hobos/murder-hobos/model"
+	"github.com/murder-hobos/murder-hobos/util"
 )
 
 func (env *Env) characterIndex(w http.ResponseWriter, r *http.Request) {
@@ -75,4 +77,36 @@ func (env *Env) newCharacterIndex(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error loading template for character-creator\n")
 		return
 	}
+}
+
+func (env *Env) newCharacterProcess(w http.ResponseWriter, r *http.Request) {
+	claims := r.Context().Value("Claims").(Claims)
+
+	name := r.PostFormValue("name")
+	//class := r.PostFormValue("class")
+	//level := r.PostFormValue("level")
+	race := r.PostFormValue("race")
+	a, _ := strconv.Atoi(r.PostFormValue("abilityMod"))
+	p, _ := strconv.Atoi(r.PostFormValue("profBonus"))
+	ability := util.ToNullInt64(a)
+	proficiency := util.ToNullInt64(p)
+
+	char := &model.Character{
+		Name:                 name,
+		Race:                 race,
+		SpellAbilityModifier: ability,
+		ProficienyBonus:      proficiency,
+		UserID:               claims.UID,
+	}
+
+	if _, err := env.db.CreateCharacter(claims.UID, *char); err != nil {
+		log.Printf("CreateCharacter: %s\n", err.Error())
+		errorHandler(w, r, http.StatusInternalServerError)
+		return
+	}
+	//	if _, err := env.db.SetCharacterLevel(charID, className, level int); err != nil {
+	//		errorHandler(w,r,http.StatusInternalServerError)
+	//	}
+	r.Method = "GET"
+	http.Redirect(w, r, "/user/character", http.StatusFound)
 }

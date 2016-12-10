@@ -4,14 +4,14 @@
     <h1>Character Creator</h1>
 </div>
 <div>
-    <form class="form">
+    <form class="form" method="POST">
         <div class="form-group" name="nameEntry">
             <label>Name: </label>
             <input type="text" name="name"></input>
         </div>
         <div class="form-group" name="classSelection">
-            <label>School: </label>
-            <select class="form-control" name="school">
+            <label>Class: </label>
+            <select class="form-control" name="class">
             <option selected disabled value="">Select Class</option>
             <option value="Bard">Bard</option>
             <option value="Cleric">Cleric</option>
@@ -61,7 +61,7 @@
             <option value="-3">-3</option>
             <option value="-2">-2</option>
             <option value="-1">-1</option>
-            <option value="0">+/-0</option>
+            <option value="0">0</option>
             <option value="1">+1</option>
             <option value="2">+2</option>
             <option value="3">+3</option>
@@ -81,7 +81,7 @@
             <option value="6">6</option>
             </select>
         </div>
+        <input class="btn btn-primary" type="submit" value="Create Character"></input>
     </form>
-    <input class="btn btn-primary" type="submit" value="Create Character"></input>
 </div>
 {{end}} {{define "scripts"}}{{end}}

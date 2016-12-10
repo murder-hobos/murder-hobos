@@ -43,7 +43,7 @@ CREATE TABLE Spell (
 CREATE TABLE `Character`(
     id                     INT UNSIGNED AUTO_INCREMENT,
     name                   VARCHAR(255) NOT NULL,
-    race                   VARCHAR(255) NULL,
+    race                   VARCHAR(255) NOT NULL,
     spell_ability_modifier INT NULL,
     proficiency_bonus      INT NULL,
     user_id                INT UNSIGNED NOT NULL,

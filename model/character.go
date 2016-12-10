@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"database/sql"
+	"github.com/yosssi/ace"
 )
 
 // CharacterDatastore describes methods available on our database
@@ -11,16 +12,17 @@ import (
 type CharacterDatastore interface {
 	GetAllCharacters(userID int) (*[]Character, error)
 	GetCharacterByName(userID int, name string) (*Character, error)
+	CreateCharacter(userID int, *Character) (int, error)
 }
 
 // Character represents our database Character table
 type Character struct {
-	ID                   sql.NullInt64 `db:"id"`
+	ID                   int           `db:"id"`
 	Name                 string        `db:"name"`
 	Race                 string        `db:"race"`
-	SpellAbilityModifier int           `db:"spell_ability_modifier"`
-	ProficienyBonus      int           `db:"proficiency_bonus"`
-	UserID               sql.NullInt64 `db:"user_id"`
+	SpellAbilityModifier sql.NullInt64 `db:"spell_ability_modifier"`
+	ProficienyBonus      sql.NullInt64 `db:"proficiency_bonus"`
+	UserID               int           `db:"user_id"`
 }
 
 // GetAllCharacters gets a list of every character belonging to a
@@ -50,4 +52,8 @@ func (db *DB) GetCharacterByName(userID int, name string) (*Character, error) {
 	}
 
 	return c, nil
+}
+
+func (db *DB) CreateCharacter(userID int, *Character) (int, error) {
+	res, err := db.Exec(`INSERT INTO `+"`Character`")
 }
