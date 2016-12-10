@@ -12,8 +12,8 @@
             </div>
             <div class="form-group" name="schoolSelection">
                 <label>School: </label>
-                <select required class="form-control" name="school">
-                <option selected disabled value="">Select School</option>
+                <select required class="selectpicker" name="school">
+                <option selected disabled value="">-</option>
                 <option value="Abjuration">Abjuration</option>
                 <option value="Conjuration">Conjuration</option>
                 <option value="Divination">Divination</option>
@@ -26,8 +26,8 @@
             </div>
             <div class="form-group" name="LevelSelection">
                 <label>Level: </label>
-                <select required class="form-control" name="level">
-                <option selected disabled value="">Select Level</option>
+                <select required class="selectpicker" name="level">
+                <option selected disabled value="">-</option>
                 <option value="0">Cantrip</option>
                 <option value="1">Level 1</option>
                 <option value="2">Level 2</option>
@@ -42,7 +42,7 @@
             </div>
             <div class="form-group" name="selectClass">
                 <label>Class: </label>
-                <select required class="form-control" name="class">
+                <select class="selectpicker" name="class" required multiple>
                 {{if .Classes}}{{range .Classes}}
                 <option value="{{.ID}}">{{.Name}}</option>
                 {{end}}{{else}}
@@ -52,56 +52,56 @@
             </div>
             <div class="form-group" name="castTimeEntry">
                 <label>Cast Time: </label>
-                <input required type="text" name="castTime" value="castTime"></input>
+                <input required type="text" name="castTime" />
             </div>
             <div class="form-group" name="durationEntry">
                 <label>Duration: </label>
-                <input required type="text" name="duration" value="duration"></input>
+                <input required type="text" name="duration" />
             </div>
-
-            <div class="form-group" name="components">
-                <label>Components: </label>
+            <div class="form-group form-inline" name="components">
                 <label>Verbal</label>
-                <select required class="form-control" name="verbal">
-                <option selected disabled value="">---</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-            </select>
+                <select required class="selectpicker" name="verbal">
+                    <option selected disabled value="">-</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
                 <label>Somatic</label>
-                <select required class="form-control" name="somatic">
-                <option selected disabled value="">---</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-            </select>
+                <select required class="selectpicker" name="somatic">
+                    <option selected disabled value="">-</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+               </select>
                 <label>Material</label>
-                <select required class="form-control" name="material">
-                <option selected disabled value="">---</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-            </select>
-                <label>Material Description: </label>
-                <input type="text" name="materialDesc" value="Enter Decription..."></input>
+                <select required class="selectpicker" name="material">
+                    <option selected disabled value="">-</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
             </div>
-
+            <div class="form-group">
+                <label>Material Description: </label>
+                <input type="text" name="materialDesc" />
+            </div>
             <div class="form-group" name="spellType">
                 <label>Spell Requirements: </label>
                 <div></div>
                 <label>Concentration</label>
-                <select required class="form-control" name="concentration">
-                <option selected disabled value="">---</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
+                <select required class="selectpicker" name="concentration">
+                <option selected disabled value="">-</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
             </select>
                 <label>Ritual</label>
-                <select required class="form-control" name="ritual">
-                <option selected disabled value="">---</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
+                <select required class="select-picker" name="ritual">
+                <option selected disabled value="">-</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
             </select>
             </div>
             <div class="form-group" name="spellDescript">
                 <label>Spell Decription: </label>
-                <input required type="text" name="spellDesc" value="spellDesc"></input>
+                <br>
+                <textarea required name="spellDesc" cols="40" rows="10"></textarea>
             </div>
             <input class="btn btn-primary" type="submit" value="Create Spell"></input>
         </form>
