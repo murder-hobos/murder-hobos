@@ -8,12 +8,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
+
+	"golang.org/x/crypto/ssh/terminal"
 
 	"github.com/fatih/color"
 	"github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/murder-hobos/murder-hobos/db/initDb"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 var (
@@ -76,6 +78,7 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
+
 	if dbname == "" {
 		fmt.Println("Error: Database name is required")
 		flag.Usage()
@@ -103,8 +106,9 @@ func main() {
 		Net:             "tcp",
 		Addr:            addr,
 		MultiStatements: true,
+		Timeout:         time.Second * 15,
 	}
-
+	fmt.Println(dbconfig.FormatDSN())
 	db, err := sqlx.Connect("mysql", dbconfig.FormatDSN())
 	if err != nil {
 		log.Fatalln(err)

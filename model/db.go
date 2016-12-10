@@ -4,7 +4,8 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/go-sql-driver/mysql"
+	//Import for side effects
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -20,8 +21,6 @@ var (
 	// This hides the implementation of our physical datastore -
 	// could use nosql/key-value store if we so chose
 
-	// stupid fix to keep mysql import from disappearing
-	_ = mysql.Config{}
 )
 
 // Datastore defines methods for accessing a datastore containing information

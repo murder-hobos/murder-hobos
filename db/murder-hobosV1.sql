@@ -19,9 +19,9 @@
 -- Current Database: `CSCI_366`
 --
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `CSCI_366` /*!40100 DEFAULT CHARACTER SET utf8 */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `MurderHobos` /*!40100 DEFAULT CHARACTER SET utf8 */;
 
-USE `CSCI_366`;
+USE `MurderHobos`;
 
 --
 -- Table structure for table `Character`
