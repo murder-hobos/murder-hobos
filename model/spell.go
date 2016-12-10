@@ -302,6 +302,7 @@ func (db *DB) CreateSpell(uid int, spell Spell) (id int, err error) {
 	return 0, err
 }
 
+//Deletes Spells
 func (db *DB) DeleteSpell(spellID string) (id int, err error) {
 
 	res, err := db.Exec(`DELETE FROM Spell WHERE id = ?`, spellID)
