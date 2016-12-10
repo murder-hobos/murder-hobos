@@ -27,6 +27,7 @@ type SpellDatastore interface {
 	GetSpellByID(id int) (*Spell, error)
 	GetSpellClasses(spellID int) (*[]Class, error)
 	CreateSpell(uid int, spell Spell) (id int, err error)
+	DeleteSpell(spellID int) (id int, err error)
 }
 
 // Spell represents our database version of a spell
@@ -299,4 +300,18 @@ func (db *DB) CreateSpell(uid int, spell Spell) (id int, err error) {
 		return int(i), nil
 	}
 	return 0, err
+}
+
+//Deletes Spells
+func (db *DB) DeleteSpell(spellID int) (id int, err error) {
+
+	res, err := db.Exec(`DELETE FROM Spell WHERE id = ?`, spellID)
+
+	if err != nil {
+		return 0, err
+	}
+	if i, err := res.LastInsertId(); err != nil {
+		return int(i), nil
+	}
+	return 0, nil
 }

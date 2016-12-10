@@ -81,6 +81,7 @@ func New(dsn string) *mux.Router {
 	r.Handle("/logout", stdChain.ThenFunc(env.logoutProcess))
 
 	// USER
+	r.Handle("/user/spell/delete", userChain.ThenFunc(env.userSpellDelete)).Methods("GRAB")
 	r.Handle("/user/spell/new", userChain.ThenFunc(env.newSpellIndex)).Methods("GET")
 	r.Handle("/user/spell/new", userChain.ThenFunc(env.newSpellProcess)).Methods("POST")
 	r.Handle(`/user/spell/{spellName:[a-zA-Z '\-\/]+}`, userChain.ThenFunc(env.userSpellDetails))

@@ -213,3 +213,23 @@ func (env *Env) userProfileIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+func (env *Env) userSpellDelete(w http.ResponseWriter, r *http.Request) {
+	claims := r.Context().Value("Claims").(Claims)
+	name := mux.Vars(r)["spellName"]
+
+	spell, err := env.db.GetUserSpellByName(claims.UID, name)
+	if err != nil {
+		log.Printf("Error getting spell by name: %s\n", name)
+		log.Printf(err.Error())
+		errorHandler(w, r, http.StatusNotFound)
+		return
+	}
+
+	if _, err := env.db.DeleteSpell(spell.ID); err != nil {
+		errorHandler(w, r, http.StatusInternalServerError)
+		log.Println(err.Error())
+		return
+	}
+	http.Redirect(w, r, "/user/spell", http.StatusFound)
+}

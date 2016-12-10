@@ -2,7 +2,7 @@
 <br>
 <div class="container">
     <div class="page-header">
-        <h1>Look at all these spells.</h1>
+        <h1>These are your spells</h1>
     </div>
     <div class="row">
         <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
@@ -48,6 +48,7 @@
         <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
             <a href="/user/spell/new" class="btn btn-success">New</a>
         </div>
+
         {{end}}
     </div>
     <br>
@@ -60,22 +61,25 @@
                     <th>Level</th>
                 </tr>
             </thead>
-            <tbody id="Spell_List">
+            <tbody id="Spell_List" name="spellName" Method="GRAB">
                 {{if .Spells}} {{range .Spells}}
                 <tr>
-                    <td><a class="Spells" Tag="Spell" href="/user/spell/{{ .Name }}">{{.Name}}</td>
-        <td>{{.School}}</td>
-        <td>{{.LevelStr}}</td>
-      </tr>
-      {{end}} {{else}}
-      <tr>
-        <th>Nothing</th>
-        <th>Here</th>
-        <th>At The moment</th>
-      </tr>
-      {{end}}
-      </tbody>
-    </table>
+                    <td><a class="Spells" Tag="Spell" type="int" value="{{.Name}}" href="/user/spell/{{ .Name }}">{{.Name}}</td>
+                    <td>{{.School}}</td>
+                    <td>{{.LevelStr}}</td>
+                    <td>
+                    <a href="/users/spell/delete" class="btn btn-success">Delete</a>
+                    </td>
+                </tr>
+                {{end}} {{else}}
+                <tr>
+                    <th>Nothing</th>
+                    <th>Here</th>
+                    <th>At The moment</th>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
     </div>
 </div>
 </div>
