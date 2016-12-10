@@ -3,14 +3,16 @@ package routes
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/jaden-young/murder-hobos/util"
 	"github.com/murder-hobos/murder-hobos/model"
 )
 
 func (env *Env) userSpellIndex(w http.ResponseWriter, r *http.Request) {
 	c := r.Context().Value("Claims")
-	claims := c.(*Claims)
+	claims := c.(Claims)
 
 	spells, err := env.db.GetAllUserSpells(claims.UID)
 	if err != nil && err != model.ErrNoResult {
@@ -32,7 +34,7 @@ func (env *Env) userSpellIndex(w http.ResponseWriter, r *http.Request) {
 
 func (env *Env) userSpellFilter(w http.ResponseWriter, r *http.Request) {
 	c := r.Context().Value("Claims")
-	claims := c.(*Claims)
+	claims := c.(Claims)
 
 	level := r.FormValue("level")
 	school := r.FormValue("school")
@@ -61,7 +63,7 @@ func (env *Env) userSpellFilter(w http.ResponseWriter, r *http.Request) {
 }
 
 func (env *Env) userSpellSearch(w http.ResponseWriter, r *http.Request) {
-	claims := r.Context().Value("Claims").(*Claims)
+	claims := r.Context().Value("Claims").(Claims)
 	name := r.FormValue("name")
 
 	spells, err := env.db.SearchUserSpells(claims.UID, name)
@@ -89,7 +91,7 @@ func (env *Env) userSpellSearch(w http.ResponseWriter, r *http.Request) {
 
 // Show information about a single spell
 func (env *Env) userSpellDetails(w http.ResponseWriter, r *http.Request) {
-	claims := r.Context().Value("claims").(*Claims)
+	claims := r.Context().Value("claims").(Claims)
 	name := mux.Vars(r)["spellName"]
 
 	spell, err := env.db.GetUserSpellByName(claims.UID, name)
@@ -124,9 +126,62 @@ func (env *Env) userSpellDetails(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//func (env *Env) userNewSpell(w http.ResponseWriter, r *http.Request) {
-//	claims := r.Context().Value("claims").(*Claims)
-//
-//	r.ParseForm()
-//
-//}
+func (env *Env) newSpellProcess(w http.ResponseWriter, r *http.Request) {
+	claims := r.Context().Value("Claims").(Claims)
+
+	r.ParseForm()
+	name := r.FormValue("name")
+	school := r.FormValue("school")
+	level := r.FormValue("level")
+	castTime := r.FormValue("castTime")
+	duration := r.FormValue("duration")
+	ran := r.FormValue("range")
+	verbal, _ := strconv.ParseBool(r.FormValue("verbal"))
+	somatic, _ := strconv.ParseBool(r.FormValue("somatic"))
+	material, _ := strconv.ParseBool(r.FormValue("material"))
+	materialDesc := util.ToNullString(r.FormValue("materialDesc"))
+	conc, _ := strconv.ParseBool(r.FormValue("concentration"))
+	ritual, _ := strconv.ParseBool(r.FormValue("ritual"))
+	desc := r.FormValue("spellDesc")
+	sourceID := claims.UID
+
+	spell := &model.Spell{
+		0,
+		name,
+		school,
+		level,
+		castTime,
+		duration,
+		ran,
+		verbal,
+		somatic,
+		material,
+		materialDesc,
+		conc,
+		ritual,
+		desc,
+		sourceID,
+	}
+	if _, err := env.db.CreateSpell(claims.UID, *spell); err != nil {
+		errorHandler(w, r, http.StatusInternalServerError)
+	}
+	http.Redirect(w, r, "/user/spell", http.StatusFound)
+}
+
+func (env *Env) newSpellIndex(w http.ResponseWriter, r *http.Request) {
+	log.Println("newSpellIndex")
+	claims, _ := r.Context().Value("Claims").(Claims)
+
+	data := map[string]interface{}{
+		"Claims": claims,
+	}
+
+	if tmpl, ok := env.tmpls["spell-creator.html"]; ok {
+		tmpl.ExecuteTemplate(w, "base", data)
+		log.Println("EXECUTED")
+	} else {
+		errorHandler(w, r, http.StatusInternalServerError)
+		log.Printf("Error loading template for spell-creator\n")
+		return
+	}
+}
