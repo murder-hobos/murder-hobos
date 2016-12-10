@@ -168,11 +168,11 @@ func (env *Env) newSpellProcess(w http.ResponseWriter, r *http.Request) {
 		log.Println(err.Error())
 		return
 	}
+	r.Method = "GET"
 	http.Redirect(w, r, "/user/spell", http.StatusFound)
 }
 
 func (env *Env) newSpellIndex(w http.ResponseWriter, r *http.Request) {
-	log.Println("newSpellIndex")
 	claims, _ := r.Context().Value("Claims").(Claims)
 
 	classes, err := env.db.GetAllClasses()
@@ -189,7 +189,6 @@ func (env *Env) newSpellIndex(w http.ResponseWriter, r *http.Request) {
 
 	if tmpl, ok := env.tmpls["spell-creator.html"]; ok {
 		tmpl.ExecuteTemplate(w, "base", data)
-		log.Println("EXECUTED")
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
 		log.Printf("Error loading template for spell-creator\n")
@@ -216,20 +215,19 @@ func (env *Env) userProfileIndex(w http.ResponseWriter, r *http.Request) {
 
 func (env *Env) userSpellDelete(w http.ResponseWriter, r *http.Request) {
 	claims := r.Context().Value("Claims").(Claims)
-	name := mux.Vars(r)["spellName"]
-
-	spell, err := env.db.GetUserSpellByName(claims.UID, name)
+	sID := r.PostFormValue("spellID")
+	spellID, err := strconv.Atoi(sID)
 	if err != nil {
-		log.Printf("Error getting spell by name: %s\n", name)
-		log.Printf(err.Error())
-		errorHandler(w, r, http.StatusNotFound)
+		errorHandler(w, r, http.StatusBadRequest)
+		log.Printf("userSpellDelete: Error converting string to int")
 		return
 	}
 
-	if _, err := env.db.DeleteSpell(spell.ID); err != nil {
+	if err := env.db.DeleteSpell(claims.UID, spellID); err != nil {
 		errorHandler(w, r, http.StatusInternalServerError)
 		log.Println(err.Error())
 		return
 	}
+	r.Method = "GET"
 	http.Redirect(w, r, "/user/spell", http.StatusFound)
 }

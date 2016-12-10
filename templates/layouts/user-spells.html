@@ -48,7 +48,6 @@
         <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
             <a href="/user/spell/new" class="btn btn-success">New</a>
         </div>
-
         {{end}}
     </div>
     <br>
@@ -68,7 +67,9 @@
                     <td>{{.School}}</td>
                     <td>{{.LevelStr}}</td>
                     <td>
-                    <a href="/users/spell/delete" class="btn btn-success">Delete</a>
+                        <form action="/user/spell/delete" method="POST">
+                            <button type="submit" name="spellID" value="{{.ID}}" class="btn btn-danger">Delete</button>
+                        </form>
                     </td>
                 </tr>
                 {{end}} {{else}}

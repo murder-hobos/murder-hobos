@@ -3,7 +3,6 @@ package routes
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 
@@ -42,7 +41,6 @@ func (env *Env) authRequired(fn http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if c := r.Context().Value("Claims"); c != nil {
 			if _, ok := c.(Claims); ok {
-				log.Println("AUTHED")
 				fn.ServeHTTP(w, r)
 			}
 		} else {
