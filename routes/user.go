@@ -148,8 +148,8 @@ func (env *Env) newSpellProcess(w http.ResponseWriter, r *http.Request) {
 	spell := &model.Spell{
 		0,
 		name,
-		school,
 		level,
+		school,
 		castTime,
 		duration,
 		ran,
@@ -164,6 +164,8 @@ func (env *Env) newSpellProcess(w http.ResponseWriter, r *http.Request) {
 	}
 	if _, err := env.db.CreateSpell(claims.UID, *spell); err != nil {
 		errorHandler(w, r, http.StatusInternalServerError)
+		log.Println(err.Error())
+		return
 	}
 	http.Redirect(w, r, "/user/spell", http.StatusFound)
 }
