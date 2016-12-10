@@ -37,7 +37,7 @@ func (env *Env) characterIndex(w http.ResponseWriter, r *http.Request) {
 func (env *Env) characterDetails(w http.ResponseWriter, r *http.Request) {
 	c := r.Context().Value("Claims")
 	claims := c.(Claims)
-	name := mux.Vars(r)["characterName"]
+	name := mux.Vars(r)["charName"]
 
 	char := &model.Character{}
 	c, err := env.db.GetCharacterByName(claims.UID, name)

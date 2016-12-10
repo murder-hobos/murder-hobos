@@ -6,8 +6,8 @@
   </div>
   <div class="row">
     <div class="col-md-6">
-      <ul id="Character_List">
-        {{if .Character}} {{range .Character}}
+      <ul id="Character_List" class="list-type">
+        {{if .Characters}} {{range .Characters}}
         <li>
           <a class="Character" Tag="Character" href="/character/{{ .Name }}"> <strong>{{.Name}}</strong></a>
         </li>

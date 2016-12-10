@@ -93,6 +93,7 @@ func New(dsn string) *mux.Router {
 	r.Handle("/user/character", userChain.ThenFunc(env.characterIndex))
 	r.Handle("/user/character/new", userChain.ThenFunc(env.newCharacterIndex)).Methods("GET")
 	r.Handle("/user/character/new", userChain.ThenFunc(env.newCharacterProcess)).Methods("POST")
+	r.Handle("/user/character/{charName}", userChain.ThenFunc(env.characterDetails))
 	r.Handle("/user", userChain.ThenFunc(env.userProfileIndex))
 
 	// ROOT
