@@ -59,3 +59,20 @@ func (env *Env) characterDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (env *Env) newCharacterIndex(w http.ResponseWriter, r *http.Request) {
+	claims, _ := r.Context().Value("Claims").(Claims)
+
+	data := map[string]interface{}{
+		"Claims": claims,
+	}
+
+	if tmpl, ok := env.tmpls["character-creator.html"]; ok {
+		tmpl.ExecuteTemplate(w, "base", data)
+		log.Println("EXECUTED")
+	} else {
+		errorHandler(w, r, http.StatusInternalServerError)
+		log.Printf("Error loading template for character-creator\n")
+		return
+	}
+}
