@@ -5,10 +5,29 @@ import (
 	"database/sql"
 	"html/template"
 	"log"
+	"strings"
 
-	"github.com/jmoiron/sqlx"
+	sq "github.com/Masterminds/squirrel"
 	"github.com/murder-hobos/murder-hobos/util"
 )
+
+// SpellDatastore describes valid methods we have on our database
+// pertaining to Spells
+type SpellDatastore interface {
+	GetAllCannonSpells() (*[]Spell, error)
+	GetCannonSpellByName(name string) (*Spell, error)
+	SearchCannonSpells(name string) (*[]Spell, error)
+	FilterCannonSpells(level, school string) (*[]Spell, error)
+
+	GetAllUserSpells(userID int) (*[]Spell, error)
+	GetUserSpellByName(userID int, name string) (*Spell, error)
+	SearchUserSpells(userID int, name string) (*[]Spell, error)
+	FilterUserSpells(userID int, level, school string) (*[]Spell, error)
+
+	GetSpellByID(id int) (*Spell, error)
+	GetSpellClasses(spellID int) (*[]Class, error)
+	CreateSpell(uid int, spell Spell) (id int, err error)
+}
 
 // Spell represents our database version of a spell
 type Spell struct {
@@ -64,95 +83,166 @@ func (s *Spell) HTMLDescription() template.HTML {
 	return template.HTML(s.Description)
 }
 
-// GetAllSpells returns a slice of all spells in the database.
-// userID can be 0. If otherwise specified, spells with the corresponding sourceID are
-// included in the result.
-// includeCannon chooses whether or not to include cannon(PHB, EE, SCAG) spells.
-func (db *DB) GetAllSpells(userID int, includeCannon bool) (*[]Spell, error) {
-	// verify arguments
-	if userID == 0 && !includeCannon {
-		return nil, ErrNoResult
+// LevelStr provides the spell's level as a string, with "Cantrip" for level 0
+func (s *Spell) LevelStr() string {
+	if s.Level == "0" {
+		return "Cantrip"
 	}
-	if userID < 0 {
-		return nil, ErrInvalidID
-	}
+	return s.Level
+}
 
-	var ids []int
-	if userID > 0 {
-		ids = append(ids, userID)
-	}
-	if includeCannon {
-		ids = append(ids, cannonIDs...)
-	}
-
-	query, args, err := sqlx.In(`SELECT * FROM Spell WHERE source_id IN (?);`, ids)
-	if err != nil {
-		log.Printf("Error preparing sqlx.In statement: %s\n", err.Error())
-		return nil, err
-	}
-	query = db.Rebind(query)
-
+// GetAllCannonSpells returns a list of every cannon spell object
+// in our database (PHB, EE, SCAG)
+func (db *DB) GetAllCannonSpells() (*[]Spell, error) {
 	spells := &[]Spell{}
-	if err := db.Select(spells, query, args...); err != nil {
-		log.Printf("Error executing query %s\n %s\n", query, err.Error())
+	if err := db.Select(spells, `SELECT * FROM CannonSpells`); err != nil {
+		log.Printf("model: GetAllCannonSpells: %s", err.Error())
 		return nil, err
 	}
 	return spells, nil
 }
 
-// GetSpellByID searches db for a Spell row with a matching id
-func (db *DB) GetSpellByID(id int) (*Spell, error) {
-	if id <= 0 {
+// GetAllUserSpells gets a list of every spell that a
+// specified user has created in our database
+func (db *DB) GetAllUserSpells(userID int) (*[]Spell, error) {
+	if userID <= 0 {
 		return nil, ErrInvalidID
 	}
+
+	spells := &[]Spell{}
+	err := db.Select(spells, `SELECT * FROM Spell WHERE source_id=?`, userID)
+	if err != nil {
+		return nil, err
+	}
+	return spells, nil
+}
+
+// SearchCannonSpells gets a list of cannon spells with names similar
+// to `name`
+func (db *DB) SearchCannonSpells(name string) (*[]Spell, error) {
+	query := `SELECT * FROM CannonSpells
+			  WHERE name LIKE CONCAT ('%', ?, '%')
+			  ORDER BY name ASC`
+	spells := &[]Spell{}
+	if err := db.Select(spells, query, name); err != nil {
+		log.Printf("Error executing query %s\n %s\n", query, err.Error())
+		return nil, err
+	}
+
+	return spells, nil
+}
+
+// SearchUserSpells gets a list of a user's spells with names similar
+// to `name`
+func (db *DB) SearchUserSpells(userID int, name string) (*[]Spell, error) {
+	// don't hit the db with bunk query
+	if userID <= 0 {
+		return nil, ErrInvalidID
+	}
+	if name == "" {
+		return nil, ErrNoResult
+	}
+
+	spells := &[]Spell{}
+	err := db.Select(spells, `SELECT * FROM Spell 
+							  WHERE source_id=? 
+							  AND name LIKE CONCAT ('%', ?, '%')
+							  ORDER BY name ASC;`, userID, name)
+	if err != nil {
+		log.Printf("model: SearchUserSpellByName: %s\n", err.Error())
+		return nil, err
+	}
+
+	return spells, nil
+}
+
+// GetCannonSpellByName returns a single cannon spell with matching name
+func (db *DB) GetCannonSpellByName(name string) (*Spell, error) {
+	if name == "" {
+		return nil, ErrNoResult
+	}
+
 	s := &Spell{}
-	if err := db.Get(s, "SELECT * FROM Spell WHERE id=?", id); err != nil {
+	err := db.Get(s, "SELECT * FROM CannonSpells WHERE name=?", name)
+	if err != nil {
 		return nil, err
 	}
 	return s, nil
 }
 
-// GetSpellByName searches the datastore for a spell with the matching name.
-// userID may be 0 for no user. If otherwise specified, search is restricted to that user's spells.
-// includeCannon decides whether or not to search cannon spells.
-// These options exist to enable different users to create spells with the same name,
-// or the same name as cannon spells if they so choose
-// NOTE: specifying nil userID and false for isCannon returns no result (hopefully obvious)
-func (db *DB) GetSpellByName(name string, userID int, isCannon bool) (*Spell, error) {
-	// verify arguments before hitting the db
+// GetUserSpellByName returns a single cannon spell with matching name
+func (db *DB) GetUserSpellByName(userID int, name string) (*Spell, error) {
+	if userID <= 0 {
+		return nil, ErrInvalidID
+	}
 	if name == "" {
 		return nil, ErrNoResult
 	}
-	if userID < 0 {
-		return nil, ErrInvalidID
-	}
-	if userID == 0 && !isCannon {
-		return nil, ErrNoResult
-	}
-
-	var ids []int
-	if userID > 0 { // If given a specific user, only search that
-		ids = append(ids, userID)
-	} else { // at this point isCannon must be true
-		ids = append(ids, cannonIDs...)
-	}
-
-	query, args, err := sqlx.In(`SELECT * FROM Spell
-								WHERE name=? AND
-								source_id in (?);`,
-		name, ids)
-	if err != nil {
-		log.Printf("Error preparing sqlx.In statement: %s\n", err.Error())
-		return nil, err
-	}
-	query = db.Rebind(query)
 
 	s := &Spell{}
-	if err := db.Get(s, query, args...); err != nil {
-		log.Printf("Error executing query %s\n %s\n", query, err.Error())
+	err := db.Get(s, "SELECT * FROM Spell WHERE source_id=? AND name=?", userID, name)
+	if err != nil {
 		return nil, err
 	}
 	return s, nil
+}
+
+// FilterCannonSpells returns a list of cannon spells matching
+// the search critera. If an empty argument is passed to one of the
+// filters, that argument is not considered for filtering.
+func (db *DB) FilterCannonSpells(level, school string) (*[]Spell, error) {
+	if level == "" && school == "" {
+		return nil, ErrNoResult
+	}
+
+	eqs := sq.Eq{}
+	if level != "" {
+		eqs["level"] = level
+	}
+	if school != "" {
+		eqs["school"] = school
+	}
+
+	query, args, err := sq.Select("*").From("CannonSpells").Where(eqs).ToSql()
+
+	spells := &[]Spell{}
+	err = db.Select(spells, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	return spells, nil
+}
+
+// FilterUserSpells returns a list of user spells matching
+// the search critera. If an empty argument is passed to one of the
+// filters, that argument is not considered for filtering.
+// NOTE: name is given as a search param, not matched exactly
+func (db *DB) FilterUserSpells(userID int, level, school string) (*[]Spell, error) {
+	if userID <= 0 {
+		return nil, ErrInvalidID
+	}
+	if level == "" && school == "" {
+		return nil, ErrNoResult
+	}
+
+	eqs := sq.Eq{}
+	eqs["source_id"] = userID
+
+	if level != "" {
+		eqs["level"] = level
+	}
+	if school != "" {
+		eqs["school"] = school
+	}
+
+	query, args, err := sq.Select("*").From("Spell").Where(eqs).ToSql()
+
+	spells := &[]Spell{}
+	err = db.Select(spells, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	return spells, nil
 }
 
 // GetSpellClasses searches the database and returns a slice of
@@ -175,4 +265,38 @@ func (db *DB) GetSpellClasses(spellID int) (*[]Class, error) {
 		return nil, err
 	}
 	return cs, nil
+}
+
+// GetSpellByID returns a single spell with matching id
+func (db *DB) GetSpellByID(id int) (*Spell, error) {
+	if id <= 0 {
+		return nil, ErrNoResult
+	}
+	s := &Spell{}
+	if err := db.Get(s, "SELECT * FROM Spell WHERE id=?", id); err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+
+// CreateSpell adds a spell to the database, created by specified user
+func (db *DB) CreateSpell(uid int, spell Spell) (id int, err error) {
+	// EWW SO UGLY BUT I WANT <BR>S IN DESCRIPTION AND I'M TOO LAZY RIGHT NOW
+	// TO WRITE A CONVERTER FROM \n TO <BR>
+	d := strings.Replace(spell.Description, "<script>", "", -1)
+	desc := strings.Replace(d, "</script>", "", -1)
+
+	res, err := db.Exec(`INSERT INTO Spell (name, level, school, cast_time, duration, `+"`range`, "+
+		`comp_verbal, comp_somatic, comp_material, material_desc, concentration, 
+						ritual, description, source_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		spell.Name, spell.Level, spell.School, spell.CastTime, spell.Duration,
+		spell.Range, spell.Verbal, spell.Somatic, spell.Material, spell.MaterialDesc,
+		spell.Concentration, spell.Ritual, desc, spell.SourceID)
+	if err != nil {
+		return 0, err
+	}
+	if i, err := res.LastInsertId(); err != nil {
+		return int(i), nil
+	}
+	return 0, err
 }

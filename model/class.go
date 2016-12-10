@@ -6,6 +6,14 @@ import (
 	"database/sql"
 )
 
+// ClassDatastore describes the methods we have available on our
+// database pertaining to Classes
+type ClassDatastore interface {
+	GetAllClasses() (*[]Class, error)
+	GetClassByName(name string) (*Class, error)
+	GetClassSpells(classID int) (*[]Spell, error)
+}
+
 // Class represents our database Class table
 type Class struct {
 	ID        int           `db:"id"`
@@ -49,13 +57,12 @@ func (db *DB) GetClassSpells(classID int) (*[]Spell, error) {
 
 	spells := &[]Spell{}
 	err := db.Select(spells, `SELECT S.id, S.name
-	 					  FROM Spell AS S
-						  JOIN ClassSpells as CS ON
-						  S.id = CS.spell_id
-						  JOIN Class AS C ON
-						  CS.class_id = C.id
-						  WHERE C.id = ?`,
-		classID)
+	 					  	  FROM Spell AS S
+						  	  JOIN ClassSpells as CS ON
+						  	  S.id = CS.spell_id
+						  	  JOIN Class AS C ON
+						  	  CS.class_id = C.id
+						  	  WHERE C.id = ?`, classID)
 	if err != nil {
 		return nil, err
 	}

@@ -1,0 +1,24 @@
+{{define "title"}}Murder Hobos{{end}} {{define "content"}}
+<br>
+<div class="container">
+  <div class="page-header">
+    <h1>Here are all of your characters.</h1>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <ul id="Character_List">
+        {{if .Character}} {{range .Character}}
+        <li>
+          <a class="Character" Tag="Character" href="/character/{{ .Name }}"> <strong>{{.Name}}</strong></a>
+        </li>
+        {{end}} {{else}}
+        <p>No results found!</p>
+        {{end}}
+      </ul>
+    </div>
+    <div class="col-md-6">
+      <a class="btn btn-success" href="/user/character/new">New</a>
+    </div>
+  </div>
+</div>
+{{end}}{{define "scripts"}}{{end}}

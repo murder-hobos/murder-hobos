@@ -1,5 +1,6 @@
 SET foreign_key_checks = 0;
 DROP TABLE IF EXISTS `User`, Spell, Class, ClassSpells, CharacterLevels, `Character`;
+DROP VIEW IF EXISTS `CannonSpells`;
 SET foreign_key_checks = 1;
 
 -- Create tables for murder-hobos
@@ -42,7 +43,7 @@ CREATE TABLE Spell (
 CREATE TABLE `Character`(
     id                     INT UNSIGNED AUTO_INCREMENT,
     name                   VARCHAR(255) NOT NULL,
-    race                   VARCHAR(255) NULL,
+    race                   VARCHAR(255) NOT NULL,
     spell_ability_modifier INT NULL,
     proficiency_bonus      INT NULL,
     user_id                INT UNSIGNED NOT NULL,
@@ -65,6 +66,8 @@ CREATE TABLE ClassSpells (
     FOREIGN KEY (spell_id) REFERENCES Spell(id),
     FOREIGN KEY (class_id) REFERENCES Class(id)
 );
+
+CREATE VIEW CannonSpells AS SELECT * FROM Spell WHERE source_id IN (1, 2, 3);
 
 -- Initialize our strong entities
 

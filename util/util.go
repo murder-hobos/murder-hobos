@@ -12,6 +12,15 @@ func ToNullString(s string) sql.NullString {
 	return sql.NullString{String: s, Valid: s != ""}
 }
 
+// ToNullInt64 converts an int to an sql.NullInt64
+func ToNullInt64(i interface{}) sql.NullInt64 {
+	if j, ok := i.(int64); ok {
+		return sql.NullInt64{Int64: j, Valid: true}
+	}
+	return sql.NullInt64{Int64: 0, Valid: false}
+
+}
+
 // CapitalizeAtIndex capitalizes a single char from a string at specified index
 // If an error is encountered (normally index being out of range),
 // ok will be set to false and the original string returned unaltered
