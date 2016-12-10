@@ -61,10 +61,10 @@
                     <th>Level</th>
                 </tr>
             </thead>
-            <tbody id="Spell_List" name="userSpellID">
+            <tbody id="Spell_List" name="spellName" Method="GRAB">
                 {{if .Spells}} {{range .Spells}}
                 <tr>
-                    <td><a class="Spells" Tag="Spell" type="int" value="{{.ID}}" href="/user/spell/{{ .Name }}">{{.Name}}</td>
+                    <td><a class="Spells" Tag="Spell" type="int" value="{{.Name}}" href="/user/spell/{{ .Name }}">{{.Name}}</td>
                     <td>{{.School}}</td>
                     <td>{{.LevelStr}}</td>
                     <td>
