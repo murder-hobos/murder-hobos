@@ -1,23 +1,21 @@
 SET foreign_key_checks = 0;
-DROP TABLE IF EXISTS `User`, Spell, Class, ClassSpells, CharacterLevels, `Character`;
-DROP VIEW IF EXISTS `CannonSpells`;
+DROP TABLE IF EXISTS  ClassSpells, CharacterLevels, Spell, `Character`, Class, `User`;
+DROP VIEW  IF EXISTS `CannonSpells`;
 SET foreign_key_checks = 1;
 
--- Create tables for murder-hobos
-
-CREATE TABLE User (
+CREATE TABLE `User` (
     id                  INT UNSIGNED AUTO_INCREMENT,
     username            VARCHAR(60) NOT NULL,
-    password            CHAR(60) NOT NULL, -- bcrypt hash length
+    password            CHAR(60) NOT NULL, 
     PRIMARY KEY(id)
 );
 
 CREATE TABLE Class (
-    id                  TINYINT UNSIGNED AUTO_INCREMENT, -- We're not going to support more than 255 classes
+    id                  TINYINT UNSIGNED AUTO_INCREMENT,
     name                VARCHAR(50) UNIQUE NOT NULL,
     base_class_id       TINYINT UNSIGNED NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY(base_class_id) REFERENCES Class(id)
+    FOREIGN KEY (base_class_id) REFERENCES Class(id)
 );
 
 CREATE TABLE Spell (
