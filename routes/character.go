@@ -10,7 +10,7 @@ import (
 
 func (env *Env) characterIndex(w http.ResponseWriter, r *http.Request) {
 	c := r.Context().Value("Claims")
-	claims := c.(*Claims)
+	claims := c.(Claims)
 
 	chars, err := env.db.GetAllCharacters(claims.UID)
 	if err != nil && err != model.ErrNoResult {
@@ -34,7 +34,7 @@ func (env *Env) characterIndex(w http.ResponseWriter, r *http.Request) {
 // Information about specific character
 func (env *Env) characterDetails(w http.ResponseWriter, r *http.Request) {
 	c := r.Context().Value("Claims")
-	claims := c.(*Claims)
+	claims := c.(Claims)
 	name := mux.Vars(r)["characterName"]
 
 	char := &model.Character{}

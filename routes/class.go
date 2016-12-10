@@ -34,7 +34,7 @@ func (env *Env) classIndex(w http.ResponseWriter, r *http.Request) {
 
 // Shows a list of all spells available to a class
 func (env *Env) classDetails(w http.ResponseWriter, r *http.Request) {
-	claims := r.Context().Value("claims")
+	claims := r.Context().Value("Claims")
 	name := mux.Vars(r)["className"]
 
 	class, err := env.db.GetClassByName(name)

@@ -35,16 +35,14 @@
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     {{if .Claims}}
-
                     <div class="dropdown">
                         <button class="dropbtn">{{.Claims.Username}}</button>
                         <div class="dropdown-content">
                             <a href="/user">Profile</a>
-                            <a href="#">Spells</a>
-                            <a href="#">Characters</a>
+                            <a href="/user/spell">Spells</a>
+                            <a href="/user/character">Characters</a>
                         </div>
                     </div>
-
                     <li>
                         <a href="/logout">Logout</a>
                     </li>

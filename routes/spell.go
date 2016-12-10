@@ -87,7 +87,7 @@ func (env *Env) spellSearch(w http.ResponseWriter, r *http.Request) {
 
 // Show information about a single spell
 func (env *Env) spellDetails(w http.ResponseWriter, r *http.Request) {
-	claims := r.Context().Value("claims")
+	claims := r.Context().Value("Claims")
 	name := mux.Vars(r)["spellName"]
 
 	spell, err := env.db.GetCannonSpellByName(name)
