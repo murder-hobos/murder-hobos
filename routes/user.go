@@ -175,8 +175,16 @@ func (env *Env) newSpellIndex(w http.ResponseWriter, r *http.Request) {
 	log.Println("newSpellIndex")
 	claims, _ := r.Context().Value("Claims").(Claims)
 
+	classes, err := env.db.GetAllClasses()
+	if err != nil {
+		log.Println(err.Error())
+		errorHandler(w, r, http.StatusInternalServerError)
+		return
+	}
+
 	data := map[string]interface{}{
-		"Claims": claims,
+		"Claims":  claims,
+		"Classes": classes,
 	}
 
 	if tmpl, ok := env.tmpls["spell-creator.html"]; ok {
