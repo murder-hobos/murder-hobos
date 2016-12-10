@@ -37,9 +37,10 @@
                     {{if .Claims}}
 
                     <div class="dropdown">
-                        <button href="/user" class="dropbtn">{{.Claims.Username}}</button>
+                        <button class="dropbtn">{{.Claims.Username}}</button>
                         <div class="dropdown-content">
-                            <a href="/spell-creator">Spells</a>
+                            <a href="/user">Profile</a>
+                            <a href="#">Spells</a>
                             <a href="#">Characters</a>
                         </div>
                     </div>
