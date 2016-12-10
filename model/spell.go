@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"html/template"
 	"log"
+	"strings"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/murder-hobos/murder-hobos/util"
@@ -179,7 +180,7 @@ func (db *DB) GetUserSpellByName(userID int, name string) (*Spell, error) {
 	}
 
 	s := &Spell{}
-	err := db.Select(s, "SELECT * FROM Spell WHERE source_id=? AND name=?", userID, name)
+	err := db.Get(s, "SELECT * FROM Spell WHERE source_id=? AND name=?", userID, name)
 	if err != nil {
 		return nil, err
 	}
@@ -280,12 +281,17 @@ func (db *DB) GetSpellByID(id int) (*Spell, error) {
 
 // CreateSpell adds a spell to the database, created by specified user
 func (db *DB) CreateSpell(uid int, spell Spell) (id int, err error) {
-	res, err := db.Exec(`INSERT INTO Spell (name, level, school, cast_time, duration, `+"`range, `"+
+	// EWW SO UGLY BUT I WANT <BR>S IN DESCRIPTION AND I'M TOO LAZY RIGHT NOW
+	// TO WRITE A CONVERTER FROM \n TO <BR>
+	d := strings.Replace(spell.Description, "<script>", "", -1)
+	desc := strings.Replace(d, "</script>", "", -1)
+
+	res, err := db.Exec(`INSERT INTO Spell (name, level, school, cast_time, duration, `+"`range`, "+
 		`comp_verbal, comp_somatic, comp_material, material_desc, concentration, 
 						ritual, description, source_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		spell.Name, spell.Level, spell.School, spell.CastTime, spell.Duration,
 		spell.Range, spell.Verbal, spell.Somatic, spell.Material, spell.MaterialDesc,
-		spell.Concentration, spell.Ritual, spell.Description, spell.SourceID)
+		spell.Concentration, spell.Ritual, desc, spell.SourceID)
 	if err != nil {
 		return 0, err
 	}

@@ -24,7 +24,7 @@ func (env *Env) userSpellIndex(w http.ResponseWriter, r *http.Request) {
 		"Spells": spells,
 	}
 
-	if tmpl, ok := env.tmpls["spells.html"]; ok {
+	if tmpl, ok := env.tmpls["user-spells.html"]; ok {
 		tmpl.ExecuteTemplate(w, "base", data)
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
@@ -55,7 +55,7 @@ func (env *Env) userSpellFilter(w http.ResponseWriter, r *http.Request) {
 		"Claims": claims,
 	}
 
-	if tmpl, ok := env.tmpls["spells.html"]; ok {
+	if tmpl, ok := env.tmpls["user-spells.html"]; ok {
 		tmpl.ExecuteTemplate(w, "base", data)
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
@@ -82,7 +82,7 @@ func (env *Env) userSpellSearch(w http.ResponseWriter, r *http.Request) {
 		"Claims": claims,
 	}
 
-	if tmpl, ok := env.tmpls["spells.html"]; ok {
+	if tmpl, ok := env.tmpls["user-spells.html"]; ok {
 		tmpl.ExecuteTemplate(w, "base", data)
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
@@ -91,7 +91,7 @@ func (env *Env) userSpellSearch(w http.ResponseWriter, r *http.Request) {
 
 // Show information about a single spell
 func (env *Env) userSpellDetails(w http.ResponseWriter, r *http.Request) {
-	claims := r.Context().Value("claims").(Claims)
+	claims := r.Context().Value("Claims").(Claims)
 	name := mux.Vars(r)["spellName"]
 
 	spell, err := env.db.GetUserSpellByName(claims.UID, name)
