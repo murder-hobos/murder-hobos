@@ -11,7 +11,7 @@ import (
 type CharacterDatastore interface {
 	GetAllCharacters(userID int) (*[]Character, error)
 	GetCharacterByName(userID int, name string) (*Character, error)
-	CreateCharacter(userID int, *Character) (int, error)
+	CreateCharacter(userID int, char *Character) (int, error)
 }
 
 // Character represents our database Character table
@@ -53,6 +53,17 @@ func (db *DB) GetCharacterByName(userID int, name string) (*Character, error) {
 	return c, nil
 }
 
-func (db *DB) CreateCharacter(userID int, *Character) (int, error) {
-	res, err := db.Exec(`INSERT INTO `+"`Character` " + `()`) 
+func (db *DB) CreateCharacter(userID int, char *Character) (int, error) {
+	res, err := db.Exec(`INSERT INTO `+"`Character` "+`(name, race, spell_ability_modifier, proficiency_bonus,
+						 user_id) VALUES (?, ?, ?, ?, ?)`,
+		char.Name, char.Race, char.SpellAbilityModifier, char.ProficienyBonus,
+		char.UserID)
+	if err != nil {
+		return 0, err
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return int(id), nil
 }

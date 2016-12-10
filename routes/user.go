@@ -115,6 +115,7 @@ func (env *Env) userSpellDetails(w http.ResponseWriter, r *http.Request) {
 		"Spell":   spell,
 		"Classes": classes,
 		"Claims":  claims,
+		"IsUser":  true,
 	}
 
 	if tmpl, ok := env.tmpls["spell-details.html"]; ok {

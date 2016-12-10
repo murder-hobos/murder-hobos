@@ -108,9 +108,10 @@ func (env *Env) spellDetails(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]interface{}{
-		"Spell":   spell,
-		"Classes": classes,
-		"Claims":  claims,
+		"Spell":    spell,
+		"Classes":  classes,
+		"Claims":   claims,
+		"IsCannon": true,
 	}
 
 	if tmpl, ok := env.tmpls["spell-details.html"]; ok {

@@ -244,45 +244,6 @@ func (db *DB) FilterUserSpells(userID int, level, school string) (*[]Spell, erro
 	return spells, nil
 }
 
-// // GetSchoolSpells searches the database and returns a slice of
-// // Spell within same School id
-// func (db *DB) GetSchoolSpells(school string, userID int, isCannon bool) (*Spell, error) {
-// 	// verify arguments before hitting the db
-// 	if school == "" {
-// 		return nil, ErrNoResult
-// 	}
-// 	if userID < 0 {
-// 		return nil, ErrInvalidID
-// 	}
-// 	if userID == 0 && !isCannon {
-// 		return nil, ErrNoResult
-// 	}
-//
-// 	var ids []int
-// 	if userID > 0 { // If given a specific user, only search that
-// 		ids = append(ids, userID)
-// 	} else { // at this point isCannon must be true
-// 		ids = append(ids, cannonIDs...)
-// 	}
-//
-// 	query, args, err := sqlx.In(`SELECT * FROM Spell
-// 								WHERE school=? AND
-// 								source_id in (?);`,
-// 		school, ids)
-// 	if err != nil {
-// 		log.Printf("Error preparing sqlx.In statement: %s\n", err.Error())
-// 		return nil, err
-// 	}
-// 	query = db.Rebind(query)
-//
-// 	s := &Spell{}
-// 	if err := db.Get(s, query, args...); err != nil {
-// 		log.Printf("Error executing query %s\n %s\n", query, err.Error())
-// 		return nil, err
-// 	}
-// 	return s, nil
-// }
-
 // GetSpellClasses searches the database and returns a slice of
 // Class objects available to the spell with spellID
 func (db *DB) GetSpellClasses(spellID int) (*[]Class, error) {
@@ -319,7 +280,7 @@ func (db *DB) GetSpellByID(id int) (*Spell, error) {
 
 // CreateSpell adds a spell to the database, created by specified user
 func (db *DB) CreateSpell(uid int, spell Spell) (id int, err error) {
-	res, err := db.Exec(`INSERT INTO Spell (name, level, school, cast_time, duration, `+"`range`, "+
+	res, err := db.Exec(`INSERT INTO Spell (name, level, school, cast_time, duration, `+"`range, `"+
 		`comp_verbal, comp_somatic, comp_material, material_desc, concentration, 
 						ritual, description, source_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		spell.Name, spell.Level, spell.School, spell.CastTime, spell.Duration,

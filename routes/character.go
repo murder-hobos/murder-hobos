@@ -99,7 +99,7 @@ func (env *Env) newCharacterProcess(w http.ResponseWriter, r *http.Request) {
 		UserID:               claims.UID,
 	}
 
-	if _, err := env.db.CreateCharacter(claims.UID, *char); err != nil {
+	if _, err := env.db.CreateCharacter(claims.UID, char); err != nil {
 		log.Printf("CreateCharacter: %s\n", err.Error())
 		errorHandler(w, r, http.StatusInternalServerError)
 		return
