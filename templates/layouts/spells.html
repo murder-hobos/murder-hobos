@@ -45,20 +45,26 @@
     </div>
     </form>
   </div>
-  <br>
-  <div class="table-responsive">
-    <table class="table">
-      <thread>
-        <tr>
-          <th>Name</th>
-          <th>School</th>
-          <th>Level</th>
-        </tr>
-      </thread>
-      <tbody id="Spell_List">
-        {{if .Spells}} {{range .Spells}}
-        <tr>
-          <td><a class="Spells" Tag="Spell" href="/spell/{{ .Name }}">{{.Name}}</td>
+  {{with .Claims}}
+  <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+    <a href="/user/spell/new" class="btn btn-success">New</a>
+  </div>
+  {{end}}
+</div>
+<br>
+<div class="table-responsive">
+  <table class="table">
+    <thread>
+      <tr>
+        <th>Name</th>
+        <th>School</th>
+        <th>Level</th>
+      </tr>
+    </thread>
+    <tbody id="Spell_List">
+      {{if .Spells}} {{range .Spells}}
+      <tr>
+        <td><a class="Spells" Tag="Spell" href="/spell/{{ .Name }}">{{.Name}}</td>
         <td>{{.School}}</td>
         <td>{{.LevelStr}}</td>
       </tr>

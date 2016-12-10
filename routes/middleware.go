@@ -36,3 +36,16 @@ func (env *Env) withClaims(fn http.Handler) http.Handler {
 		}
 	})
 }
+
+func (env *Env) authRequired(fn http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if c := r.Context().Value("Claims"); c != nil {
+			if _, ok := c.(*Claims); ok {
+				fn.ServeHTTP(w, r)
+				return
+			}
+		}
+		http.Redirect(w, r, "/", http.StatusUnauthorized)
+		return
+	})
+}

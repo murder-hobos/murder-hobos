@@ -8,36 +8,37 @@ import (
 	"github.com/murder-hobos/murder-hobos/model"
 )
 
-// List characters
 func (env *Env) characterIndex(w http.ResponseWriter, r *http.Request) {
-	var userID int
+	c := r.Context().Value("Claims")
+	claims := c.(*Claims)
 
-	//we will need to make this specific to userID soon on an account by account basis
-	characters, err := env.db.GetAllCharacters(userID)
-	if err != nil {
-		if err.Error() == "empty slice passed to 'in' query" || err == model.ErrNoResult {
-			// do nothing, just show no results on page (already in template)
-		} else { // something happened
-			log.Println(err.Error())
-			errorHandler(w, r, http.StatusInternalServerError)
-			return
-		}
+	chars, err := env.db.GetAllCharacters(claims.UID)
+	if err != nil && err != model.ErrNoResult {
+		errorHandler(w, r, http.StatusInternalServerError)
+	}
+
+	data := map[string]interface{}{
+		"Claims":     claims,
+		"Characters": chars,
 	}
 
 	if tmpl, ok := env.tmpls["characters.html"]; ok {
-		tmpl.ExecuteTemplate(w, "base", characters)
+		tmpl.ExecuteTemplate(w, "base", data)
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
+		return
 	}
+
 }
 
 // Information about specific character
 func (env *Env) characterDetails(w http.ResponseWriter, r *http.Request) {
-	var userID int
+	c := r.Context().Value("Claims")
+	claims := c.(*Claims)
 	name := mux.Vars(r)["characterName"]
 
-	c := &model.Character{}
-	c, err := env.db.GetCharacterByName(userID, name)
+	char := &model.Character{}
+	c, err := env.db.GetCharacterByName(claims.UID, name)
 	if err != nil {
 		log.Printf("Error getting Character with name: %s\n", name)
 		log.Printf(err.Error())
@@ -45,11 +46,11 @@ func (env *Env) characterDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := struct {
-		Character *model.Character
-	}{
-		c,
+	data := map[string]interface{}{
+		"Claims":    claims,
+		"Character": char,
 	}
+
 	if tmpl, ok := env.tmpls["character-details.html"]; ok {
 		tmpl.ExecuteTemplate(w, "base", data)
 	} else {

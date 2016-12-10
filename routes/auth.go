@@ -22,7 +22,7 @@ type Claims struct {
 func (env *Env) loginIndex(w http.ResponseWriter, r *http.Request) {
 	// already authenticated
 	if claims := r.Context().Value("Claims"); claims != nil {
-		http.Redirect(w, r, "/", http.StatusBadRequest)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
@@ -57,7 +57,6 @@ func (env *Env) loginProcess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: CHANGE THIS TO BCRYPT AFTER DONE TESTING
 	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(p)); err != nil {
 		// Invalid password
 		loginPageWithErrors(w, r, "Invalid Username or Password")
@@ -70,6 +69,7 @@ func (env *Env) loginProcess(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// Logs a user out by "deleting" their token
 func (env *Env) logoutProcess(w http.ResponseWriter, r *http.Request) {
 	deleteCookie := http.Cookie{Name: "Auth", Value: "none", Expires: time.Now()}
 	http.SetCookie(w, &deleteCookie)
@@ -79,11 +79,12 @@ func (env *Env) logoutProcess(w http.ResponseWriter, r *http.Request) {
 // little utility
 func loginPageWithErrors(w http.ResponseWriter, r *http.Request, errs ...string) {
 	r.Method = "GET"
-	ctx := context.WithValue(r.Context(), "Errors", &errs)
-	http.Redirect(w, r.WithContext(ctx), "/login", http.StatusFound)
+	ctx := context.WithValue(r.Context(), "Errors", errs)
+	http.Redirect(w, r.WithContext(ctx), "/login", http.StatusSeeOther)
 	return
 }
 
+// Creates a new user
 func (env *Env) registerProcess(w http.ResponseWriter, r *http.Request) {
 	u := r.PostFormValue("username")
 	p := r.PostFormValue("password")

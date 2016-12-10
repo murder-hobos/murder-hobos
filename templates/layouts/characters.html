@@ -7,8 +7,10 @@
   <div class="row">
     <div class="col-lg-8 col-md-8 col-sm-10 col-xs-10 list-type">
       <ul id="Character_List">
-        {{if .}} {{range .}}
-        <li><a class="Character" Tag="Character" href="/character/{{ .Name }}"> <strong>{{.Name}}</strong></a></li>
+        {{if .Character}} {{range .Character}}
+        <li>
+          <a class="Character" Tag="Character" href="/character/{{ .Name }}"> <strong>{{.Name}}</strong></a>
+        </li>
         {{end}} {{else}}
         <p>No results found!</p>
         {{end}}

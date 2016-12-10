@@ -59,10 +59,11 @@ func New(dsn string) *mux.Router {
 	env := &Env{db, tmpls}
 
 	stdChain := alice.New(env.withClaims)
+	userChain := stdChain.Append(env.authRequired)
 	r := mux.NewRouter()
 
 	// SPELL
-	r.HandleFunc(`/spell/{spellName:[a-zA-Z '\-\/]+}`, env.spellDetails)
+	r.Handle(`/spell/{spellName:[a-zA-Z '\-\/]+}`, stdChain.ThenFunc(env.spellDetails))
 	r.Handle("/spell", stdChain.ThenFunc(env.spellSearch)).Queries("name", "")
 	r.Handle("/spell", stdChain.ThenFunc(env.spellFilter)).Queries("school", "")
 	r.Handle("/spell", stdChain.ThenFunc(env.spellFilter)).Queries("level", "{level:[0-9]}")
@@ -80,8 +81,15 @@ func New(dsn string) *mux.Router {
 	r.Handle("/logout", stdChain.ThenFunc(env.logoutProcess))
 
 	// USER
-	r.HandleFunc("/character/{characterName}", env.characterDetails)
-	r.HandleFunc("/character", env.characterIndex)
+	r.Handle("/user/spell/new", userChain.ThenFunc(env.userNewSpell))
+	r.Handle(`/user/spell/{spellName:[a-zA-Z '\-\/]+}`, userChain.ThenFunc(env.userSpellDetails))
+	r.Handle("/user/spell", userChain.ThenFunc(env.userSpellSearch)).Queries("name", "")
+	r.Handle("/user/spell", userChain.ThenFunc(env.userSpellFilter)).Queries("school", "")
+	r.Handle("/user/spell", userChain.ThenFunc(env.userSpellFilter)).Queries("level", "{level:[0-9]}")
+	r.Handle("/user/spell", userChain.ThenFunc(env.userSpellFilter)).Queries("school", "", "level", "{level:[0-9]}")
+	r.Handle("/user/spell", userChain.ThenFunc(env.userSpellIndex))
+	r.Handle("/user/spell", userChain.ThenFunc(env.userSpellIndex))
+	r.Handle("/user/character", userChain.ThenFunc(env.characterIndex))
 
 	// ROOT
 	r.Handle("/", stdChain.ThenFunc(rootIndex))

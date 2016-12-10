@@ -315,3 +315,24 @@ func (db *DB) GetSpellByID(id int) (*Spell, error) {
 	}
 	return s, nil
 }
+
+// CreateSpell adds a spell to the database, created by specified user
+func (db *DB) CreateSpell(uid int, spell Spell) (id int, err error) {
+	if id <= 0 {
+		return 0, ErrInvalidID
+	}
+
+	res, err := db.Exec(`INSERT INTO Spell (name, level, school, cast_time, duration, `+"`range, `"+
+		`comp_verbal, comp_somatic, comp_material, material_desc, concentration, 
+						ritual, description, source_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		spell.Name, spell.Level, spell.School, spell.CastTime, spell.Duration,
+		spell.Range, spell.Verbal, spell.Somatic, spell.Material, spell.MaterialDesc,
+		spell.Concentration, spell.Ritual, spell.Description, spell.SourceID)
+	if err != nil {
+		return 0, err
+	}
+	if i, err := res.LastInsertId(); err != nil {
+		return int(i), nil
+	}
+	return 0, err
+}
