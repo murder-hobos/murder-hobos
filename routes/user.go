@@ -213,3 +213,15 @@ func (env *Env) userProfileIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+func (env *Env) userSpellDelete(w http.ResponseWriter, r *http.Request) {
+
+	spellID := mux.Vars(r)["userSpellID"]
+
+	if _, err := env.db.DeleteSpell(spellID); err != nil {
+		errorHandler(w, r, http.StatusInternalServerError)
+		log.Println(err.Error())
+		return
+	}
+	http.Redirect(w, r, "/user/spell", http.StatusFound)
+}
