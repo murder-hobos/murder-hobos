@@ -32,13 +32,18 @@
                 <ul class="nav navbar-nav">
                     <li><a href="/spell">Spells</a></li>
                     <li><a href="/class">Classes</a></li>
-                    <li><a href="/character">Characters</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     {{if .Claims}}
-                    <li>
-                        <a href="/user">{{.Claims.Username}}</a>
-                    </li>
+
+                    <div class="dropdown">
+                        <button href="/user" class="dropbtn">{{.Claims.Username}}</button>
+                        <div class="dropdown-content">
+                            <a href="/spell-creator">Spells</a>
+                            <a href="#">Characters</a>
+                        </div>
+                    </div>
+
                     <li>
                         <a href="/logout">Logout</a>
                     </li>
@@ -60,6 +65,49 @@
         </div>
     </footer>
 </body>
+<style>
+    .dropbtn {
+        background-color: #FC756F;
+        color: black;
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    }
+    
+    .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+    
+    .dropdown-content a:hover {
+        background-color: #f1f1f1
+    }
+    
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+    
+    .dropdown:hover .dropbtn {
+        background-color: #3e8e41;
+        color: white;
+    }
+</style>
 
 </html>
 {{end}}
