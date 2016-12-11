@@ -55,3 +55,7 @@ body {
   font-weight: bold;
   color: #FFF;
 }
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
