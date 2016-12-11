@@ -21,29 +21,30 @@
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false"
                     aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                </button>
                 <a class="navbar-brand" href="/">Murder Hobos</a>
             </div>
             <div id="navbar" class="collapse navbar-collapse">
-                <ul class="nav navbar-nav">
+                <ul role="navigation" class="nav navbar-nav navbar-inner">
                     <li><a href="/spell">Spells</a></li>
                     <li><a href="/class">Classes</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     {{if .Claims}}
-                    <div class="dropdown">
-                        <button class="dropbtn">{{.Claims.Username}}</button>
-                        <div class="dropdown-content">
-                            <a href="/user">Profile</a>
-                            <a href="/user/spell">Spells</a>
-                            <a href="/user/character">Characters</a>
-                            <a href="/logout">Logout</a>
-                        </div>
-                    </div>
+                    <li class="dropdown">
+                        <a href="#" data-toggle="dropdown" class="dropdown-toggle">{{.Claims.Username}} <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/user">Profile</a></li>
+                            <li><a href="/user/spell">Spells</a></li>
+                            <li><a href="/user/character">Characters</a></li>
+                            <li class="divider"></li>
+                            <li><a href="/logout">Logout</a></li>
+                        </ul>
+                    </li>
                     {{else}}
                     <li><a href="/login">Login</a></li>
                     {{end}}
