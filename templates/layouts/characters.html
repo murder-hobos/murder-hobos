@@ -9,7 +9,7 @@
       <ul id="Character_List" class="list-type">
         {{if .Characters}} {{range .Characters}}
         <li>
-          <a class="Character" Tag="Character" href="/character/{{ .Name }}"> <strong>{{.Name}}</strong></a>
+          <a class="Character" Tag="Character" href="/user/character/{{ .Name }}"> <strong>{{.Name}}</strong></a>
         </li>
         {{end}} {{else}}
         <p>No results found!</p>

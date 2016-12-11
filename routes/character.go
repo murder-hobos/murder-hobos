@@ -35,19 +35,20 @@ func (env *Env) characterIndex(w http.ResponseWriter, r *http.Request) {
 
 // Information about specific character
 func (env *Env) characterDetails(w http.ResponseWriter, r *http.Request) {
-	c := r.Context().Value("Claims")
-	claims := c.(Claims)
+	claims, ok := r.Context().Value("Claims").(Claims)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusUnauthorized)
+	}
+
 	name := mux.Vars(r)["charName"]
 
-	char := &model.Character{}
-	c, err := env.db.GetCharacterByName(claims.UID, name)
+	char, err := env.db.GetCharacterByName(claims.UID, name)
 	if err != nil {
 		log.Printf("Error getting Character with name: %s\n", name)
 		log.Printf(err.Error())
 		errorHandler(w, r, http.StatusNotFound)
 		return
 	}
-
 	data := map[string]interface{}{
 		"Claims":    claims,
 		"Character": char,
@@ -95,11 +96,11 @@ func (env *Env) newCharacterProcess(w http.ResponseWriter, r *http.Request) {
 		Name:                 name,
 		Race:                 race,
 		SpellAbilityModifier: ability,
-		ProficienyBonus:      proficiency,
+		ProficiencyBonus:     proficiency,
 		UserID:               claims.UID,
 	}
 
-	if _, err := env.db.CreateCharacter(claims.UID, char); err != nil {
+	if _, err := env.db.InsertCharacter(char); err != nil {
 		log.Printf("CreateCharacter: %s\n", err.Error())
 		errorHandler(w, r, http.StatusInternalServerError)
 		return
