@@ -6,12 +6,22 @@
   </div>
   <div class="row">
     <div class="col-lg-6 col-md-6 col-sm-8 col-xs-8">
-      <div class="list-type">
-        <ul>
-          <li><strong>Race: </strong>{{.Character.Race}}</li>
-          <li><strong>Spell Ability Modifier: </strong>{{.Character.AbilityStr}}</li>
-          <li><strong>Proficiency Bonus: </strong>{{.Character.ProficiencyStr}}</li>
+      <ul>
+        <li><strong>Race: </strong>{{.Character.Race}}</li>
+        <li><strong>Spell Ability Modifier: </strong>{{.Character.AbilityStr}}</li>
+        <li><strong>Proficiency Bonus: </strong>{{.Character.ProficiencyStr}}</li>
+        <li><strong>Class:</strong></li>
+        <ul class="list-type">
+          {{range .Character.Levels}}
+          <li><a href="/class/{{.Class.Name}}">Level {{.Level}} {{.Class.Name}}</a></li>
+          {{end}}
         </ul>
+      </ul>
+      <div class="form-group row">
+        <form class="form-inline" action="/user/character/delete" method="POST">
+          <button type="submit" name="charID" value="{{.ID}}" class="btn btn-danger">Delete</button>
+          <a href="/user/character/edit/{{.Character.Name}}" class="btn btn-info pull-right">Edit</a>
+        </form>
       </div>
     </div>
   </div>

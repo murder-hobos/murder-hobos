@@ -13,7 +13,6 @@ import (
 )
 
 var (
-	// Package global that holds a map of our templates.
 	tmpls map[string]*template.Template
 )
 
@@ -91,8 +90,12 @@ func New(dsn string) *mux.Router {
 	r.Handle("/user/spell", userChain.ThenFunc(env.userSpellFilter)).Queries("school", "", "level", "{level:[0-9]}")
 	r.Handle("/user/spell", userChain.ThenFunc(env.userSpellIndex))
 	r.Handle("/user/spell", userChain.ThenFunc(env.userSpellIndex))
+
+	// CHARACTER
 	r.Handle("/user/character/new", userChain.ThenFunc(env.newCharacterIndex)).Methods("GET")
 	r.Handle("/user/character/new", userChain.ThenFunc(env.newCharacterProcess)).Methods("POST")
+	r.Handle("/user/character/edit/{charName}", userChain.ThenFunc(env.editCharacterIndex)).Methods("GET")
+	//r.Handle("/user/character/edit/{charName}", userChain.ThenFunc(env.editCharacterProcess)).Methods("POST")
 	r.Handle("/user/character/{charName}", userChain.ThenFunc(env.characterDetails))
 	r.Handle("/user/character", userChain.ThenFunc(env.characterIndex))
 	r.Handle("/user", userChain.ThenFunc(env.userProfileIndex))
@@ -150,6 +153,6 @@ func errorHandler(w http.ResponseWriter, r *http.Request, status int) {
 		message = "Our server is having issues. >:("
 	}
 
-	vars := map[string]string{"Title": title, "Message": message}
-	tmpl.ExecuteTemplate(w, "base", vars)
+	data := map[string]string{"Title": title, "Message": message}
+	tmpl.ExecuteTemplate(w, "base", data)
 }

@@ -3,6 +3,8 @@ package routes
 import (
 	"log"
 	"net/http"
+	"strings"
+
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -38,6 +40,7 @@ func (env *Env) characterDetails(w http.ResponseWriter, r *http.Request) {
 	claims, ok := r.Context().Value("Claims").(Claims)
 	if !ok {
 		http.Redirect(w, r, "/login", http.StatusUnauthorized)
+		return
 	}
 
 	name := mux.Vars(r)["charName"]
@@ -66,13 +69,22 @@ func (env *Env) characterDetails(w http.ResponseWriter, r *http.Request) {
 func (env *Env) newCharacterIndex(w http.ResponseWriter, r *http.Request) {
 	claims, _ := r.Context().Value("Claims").(Claims)
 
+	dummy := model.ClassLevelView{
+		Class: model.Class{
+			Name: "",
+		},
+		Level: 0,
+	}
+
 	data := map[string]interface{}{
 		"Claims": claims,
+		"Character": &model.Character{
+			Levels: []model.ClassLevelView{dummy},
+		},
 	}
 
 	if tmpl, ok := env.tmpls["character-creator.html"]; ok {
 		tmpl.ExecuteTemplate(w, "base", data)
-		log.Println("EXECUTED")
 	} else {
 		errorHandler(w, r, http.StatusInternalServerError)
 		log.Printf("Error loading template for character-creator\n")
@@ -81,16 +93,29 @@ func (env *Env) newCharacterIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func (env *Env) newCharacterProcess(w http.ResponseWriter, r *http.Request) {
-	claims := r.Context().Value("Claims").(Claims)
+	claims, _ := r.Context().Value("Claims").(Claims)
 
 	name := r.PostFormValue("name")
-	//class := r.PostFormValue("class")
-	//level := r.PostFormValue("level")
+	classes := strings.Split(r.PostFormValue("classes[]"), ", ")
+	levels := strings.Split(r.PostFormValue("levels[]"), ", ")
 	race := r.PostFormValue("race")
-	a, _ := strconv.Atoi(r.PostFormValue("abilityMod"))
-	p, _ := strconv.Atoi(r.PostFormValue("profBonus"))
-	ability := util.ToNullInt64(a)
-	proficiency := util.ToNullInt64(p)
+	ability := util.ToNullInt64(r.PostFormValue("abilityMod"))
+	proficiency := util.ToNullInt64(r.PostFormValue("profBonus"))
+
+	var classLevels []model.ClassLevelView
+	for i, c := range classes {
+		class := model.Classes[c]
+		level, err := strconv.Atoi(levels[i])
+		if err != nil {
+			errorHandler(w, r, http.StatusInternalServerError)
+			log.Println(err.Error())
+			return
+		}
+		classLevels = append(classLevels, model.ClassLevelView{
+			Class: class,
+			Level: level,
+		})
+	}
 
 	char := &model.Character{
 		Name:                 name,
@@ -98,6 +123,7 @@ func (env *Env) newCharacterProcess(w http.ResponseWriter, r *http.Request) {
 		SpellAbilityModifier: ability,
 		ProficiencyBonus:     proficiency,
 		UserID:               claims.UID,
+		Levels:               classLevels,
 	}
 
 	if _, err := env.db.InsertCharacter(char); err != nil {
@@ -105,9 +131,33 @@ func (env *Env) newCharacterProcess(w http.ResponseWriter, r *http.Request) {
 		errorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
-	//	if _, err := env.db.SetCharacterLevel(charID, className, level int); err != nil {
-	//		errorHandler(w,r,http.StatusInternalServerError)
-	//	}
 	r.Method = "GET"
 	http.Redirect(w, r, "/user/character", http.StatusFound)
+}
+
+func (env *Env) editCharacterIndex(w http.ResponseWriter, r *http.Request) {
+	claims, _ := r.Context().Value("Claims").(Claims)
+	name := mux.Vars(r)["charName"]
+
+	char, err := env.db.GetCharacterByName(claims.UID, name)
+	if err != nil {
+		errorHandler(w, r, http.StatusNotFound)
+		log.Println("Error getting char by name")
+		log.Println(err.Error())
+		return
+	}
+
+	data := map[string]interface{}{
+		"Claims":    claims,
+		"Character": char,
+	}
+
+	if tmpl, ok := env.tmpls["character-creator.html"]; ok {
+		tmpl.ExecuteTemplate(w, "base", data)
+	} else {
+		errorHandler(w, r, http.StatusInternalServerError)
+		log.Printf("Error loading template for character-creator\n")
+		return
+	}
+
 }

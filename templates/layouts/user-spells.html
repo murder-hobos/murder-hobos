@@ -60,7 +60,7 @@
                     <th>Level</th>
                 </tr>
             </thead>
-            <tbody id="Spell_List" name="spellName" Method="GRAB">
+            <tbody id="Spell_List" name="spellName">
                 {{if .Spells}} {{range .Spells}}
                 <tr>
                     <td><a class="Spells" Tag="Spell" type="int" value="{{.Name}}" href="/user/spell/{{ .Name }}">{{.Name}}</td>

@@ -1,18 +1,21 @@
 {{define "title"}}Create Character - Murder Hobos{{end}} {{define "content"}}
 <br>
-<div class="page-header">
-    <h1>Character Creator</h1>
-</div>
-<div>
-    <form class="form" method="POST">
-        <div class="form-group" name="nameEntry">
-            <label>Name: </label>
-            <input type="text" name="name"></input>
-        </div>
-        <div class="form-group" name="classSelection">
-            <label>Class: </label>
-            <select class="selectpicker" name="class">
-                <option selected disabled value="">-</option>
+<div class="container">
+    <div class="page-header">
+        <h1>{{if .Character.Name}}Editing {{.Character.Name}}{{else}}Character Creator{{end}}</h1>
+    </div>
+    <div class="col-md-6">
+        <form class="form" method="POST" action={{if .Character.Name}} "/user/character/edit/{{.Character.Name}}"{{else}}
+            "/user/character/new"{{end}}>
+            <div class="form-group" name="nameEntry">
+                <label>Name: </label>
+                <input type="text" name="name" value="{{.Character.Name}}" required/>
+            </div>
+            {{range .Character.Levels}}
+            <div class="form-group form-inline" name="classLevelSelection">
+                <label>Class: </label>
+                <select class="selectpicker" name="classes[]" required>
+                <option selected {{if not .Class.Name}}disabled{{end}} value="">{{.Class.Name}}</option>
                 <option value="Bard">Bard</option>
                 <option value="Cleric">Cleric</option>
                 <option value="Druid">Druid</option>
@@ -23,11 +26,9 @@
                 <option value="Fighter">Fighter</option>
                 <option value="Pogue">Rogue</option>
             </select>
-        </div>
-        <div class="form-group" name="LevelSelection">
-            <label>Level: </label>
-            <select class="select-picker" name="level">
-                <option selected disabled value="">-</option>
+                <label>Level: </label>
+                <select class="select-picker" name="levels[]" required>
+                <option selected {{if not .Level}}disabled{{end}} value="{{.Level}}"></option>
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -49,15 +50,16 @@
                 <option value="19">19</option>
                 <option value="20">20</option>
             </select>
-        </div>
-        <div class="form-group" name="raceEntry">
-            <label>Race: </label>
-            <input type="text" name="race"></input>
-        </div>
-        <div class="form-group" name="abilityModifier">
-            <label>Ability Modifier: </label>
-            <select class="selectpicker" name="abilityMod">
-                <option selected disabled value="">-</option>
+            </div>
+            {{end}}
+            <div class="form-group" name="raceEntry">
+                <label>Race: </label>
+                <input type="text" name="race" value="{{.Character.Race}}" required/>
+            </div>
+            <div class="form-group" name="abilityModifier">
+                <label>Ability Modifier: </label>
+                <select class="selectpicker" name="abilityMod" required format>
+                <option selected value="{{.Character.AbilityStr}}"></option>
                 <option value="-3">-3</option>
                 <option value="-2">-2</option>
                 <option value="-1">-1</option>
@@ -68,20 +70,21 @@
                 <option value="4">+4</option>
                 <option value="5">+5</option>
             </select>
-        </div>
-        <div class="form-group" name="profieBonus">
-            <label>Proficiency Bonus: </label>
-            <select class="selectpicker" name="profBonus">
-            <option selected disabled value="">-</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
+            </div>
+            <div class="form-group" name="profieBonus">
+                <label>Proficiency Bonus: </label>
+                <select class="selectpicker" name="profBonus">
+                <option selected required value="{{.Character.AbilityStr}}"></option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
             </select>
-        </div>
-        <input class="btn btn-primary" type="submit" value="Create Character"></input>
-    </form>
+            </div>
+            <input class="btn btn-success" type="submit" value="Save"></input>
+        </form>
+    </div>
 </div>
 {{end}} {{define "scripts"}}{{end}}

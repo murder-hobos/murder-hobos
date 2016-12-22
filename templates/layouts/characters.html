@@ -5,11 +5,11 @@
     <h1>Here are all of your characters.</h1>
   </div>
   <div class="row">
-    <div class="col-md-6">
-      <ul id="Character_List" class="list-type">
+    <div class="col-md-6 list-type">
+      <ul id="Character_List">
         {{if .Characters}} {{range .Characters}}
         <li>
-          <a class="Character" Tag="Character" href="/user/character/{{ .Name }}"> <strong>{{.Name}}</strong></a>
+          <a Tag="Character" href="/user/character/{{ .Name }}"> <strong>{{.Name}}</strong></a>
         </li>
         {{end}} {{else}}
         <p>No results found!</p>

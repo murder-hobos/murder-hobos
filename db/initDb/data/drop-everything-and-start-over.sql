@@ -5,7 +5,7 @@ SET foreign_key_checks = 1;
 
 CREATE TABLE `User` (
     id                  INT UNSIGNED AUTO_INCREMENT,
-    username            VARCHAR(60) NOT NULL,
+    username            VARCHAR(60) UNIQUE NOT NULL,
     password            CHAR(60) NOT NULL, 
     PRIMARY KEY(id)
 );
@@ -52,6 +52,7 @@ CREATE TABLE `Character`(
 CREATE TABLE CharacterLevels(
     char_id             INT UNSIGNED,
     class_id            TINYINT UNSIGNED,
+    level               CHAR(2) NOT NULL, -- Max level 20
     PRIMARY KEY (char_id, class_id),
     FOREIGN KEY (char_id) REFERENCES `Character`(id) ON DELETE CASCADE,
     FOREIGN KEY (class_id) REFERENCES Class(id)

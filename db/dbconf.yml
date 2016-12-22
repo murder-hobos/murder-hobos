@@ -1,0 +1,6 @@
+development:
+    driver: mysql
+    open: app:mh@/MurderHobos
+production:
+    driver: mysql
+    open: $DATABASE_URL

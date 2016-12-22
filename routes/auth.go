@@ -76,14 +76,6 @@ func (env *Env) logoutProcess(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-// little utility
-func loginPageWithErrors(w http.ResponseWriter, r *http.Request, errs ...string) {
-	r.Method = "GET"
-	ctx := context.WithValue(r.Context(), "Errors", errs)
-	http.Redirect(w, r.WithContext(ctx), "/login", http.StatusSeeOther)
-	return
-}
-
 // Creates a new user
 func (env *Env) registerProcess(w http.ResponseWriter, r *http.Request) {
 	u := r.PostFormValue("username")
@@ -109,16 +101,17 @@ func (env *Env) registerProcess(w http.ResponseWriter, r *http.Request) {
 	errorHandler(w, r, http.StatusInternalServerError)
 }
 
+// assignToken stores a cookie with our auth token
 func assignToken(w http.ResponseWriter, id int, uname string) {
-	expireToken := time.Now().Add(time.Hour * 1).Unix()
-	expireCookie := time.Now().Add(time.Hour * 1)
+	expireToken := time.Now().Add(time.Hour * 8).Unix()
+	expireCookie := time.Now().Add(time.Hour * 8)
 
 	claims := Claims{
 		id,
 		uname,
 		jwt.StandardClaims{
 			ExpiresAt: expireToken,
-			Issuer:    "localhost:8081",
+			Issuer:    "murder-hobos",
 		},
 	}
 
@@ -138,4 +131,12 @@ func assignToken(w http.ResponseWriter, id int, uname string) {
 	}
 	http.SetCookie(w, &cookie)
 
+}
+
+// little utility
+func loginPageWithErrors(w http.ResponseWriter, r *http.Request, errs ...string) {
+	r.Method = "GET"
+	ctx := context.WithValue(r.Context(), "Errors", errs)
+	http.Redirect(w, r.WithContext(ctx), "/login", http.StatusSeeOther)
+	return
 }

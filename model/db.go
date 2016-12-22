@@ -3,6 +3,7 @@ package model
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	//Import for side effects
 	_ "github.com/go-sql-driver/mysql"
@@ -53,4 +54,29 @@ func NewDB(dsn string) (Datastore, error) {
 		return nil, err
 	}
 	return &DB{db}, nil
+}
+
+// transact wraps an anonymous function with various db queries
+// in a transaction
+func (db *DB) transact(txFunc func(*sqlx.Tx) error) (err error) {
+	tx, err := db.Beginx()
+	if err != nil {
+		return
+	}
+	defer func() {
+		if p := recover(); p != nil {
+			switch p := p.(type) {
+			case error:
+				err = p
+			default:
+				err = fmt.Errorf("%s", p)
+			}
+		}
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+		err = tx.Commit()
+	}()
+	return txFunc(tx)
 }

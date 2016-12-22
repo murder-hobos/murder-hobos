@@ -4,6 +4,7 @@ package util
 import (
 	"bytes"
 	"database/sql"
+	"strconv"
 	"strings"
 )
 
@@ -12,13 +13,26 @@ func ToNullString(s string) sql.NullString {
 	return sql.NullString{String: s, Valid: s != ""}
 }
 
-// ToNullInt64 converts an int to an sql.NullInt64
+// ToNullInt64 converts a value to a sql.NullInt64
+// different types of intergers, as well as strings representing
+// integers are valid arguments
 func ToNullInt64(i interface{}) sql.NullInt64 {
-	if j, ok := i.(int64); ok {
-		return sql.NullInt64{Int64: j, Valid: true}
+	switch val := i.(type) {
+	case int:
+	case int8:
+	case int16:
+	case int32:
+		return sql.NullInt64{Int64: int64(val), Valid: true}
+	case int64:
+		return sql.NullInt64{Int64: val, Valid: true}
+	case string:
+		v, err := strconv.ParseInt(val, 0, 64)
+		if err != nil {
+			return sql.NullInt64{Int64: 0, Valid: false}
+		}
+		return sql.NullInt64{Int64: v, Valid: true}
 	}
 	return sql.NullInt64{Int64: 0, Valid: false}
-
 }
 
 // CapitalizeAtIndex capitalizes a single char from a string at specified index
