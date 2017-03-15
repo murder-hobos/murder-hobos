@@ -9,7 +9,8 @@
 
 DROP VIEW IF EXISTS cannon_spells, user_spells, cannon_classes, basic_classes;
 DROP TABLE IF EXISTS class_spells, character_class_levels, 
-    mh_character, spell, class, mh_user, cannon_text, source;
+    class_specialization, mh_character, spell, class, mh_user, cannon_text, 
+    source;
 
 -------------------------------------------------------------------------------
 --                              Source Entities
@@ -119,12 +120,23 @@ AFTER DELETE ON mh_user
 --
 -------------------------------------------------------------------------------
 
+-----------------------------------------------
+-- TODO: Race table with descriptions/abilities
+-----------------------------------------------
+
 CREATE TABLE class (
     id                  SERIAL PRIMARY KEY,
     name                VARCHAR(100) NOT NULL,
-    base_class_id       INTEGER DEFAULT NULL,
     source_id           INTEGER NOT NULL,
     UNIQUE (name, source_id),
+    FOREIGN KEY (source_id) REFERENCES source(id) ON DELETE CASCADE
+);
+
+CREATE TABLE class_specialization (
+    name                VARCHAR(100) NOT NULL,
+    base_class_id       INTEGER NOT NULL,
+    source_id           INTEGER NOT NULL,
+    PRIMARY KEY (name, base_class_id),
     FOREIGN KEY (base_class_id) REFERENCES class(id) ON DELETE CASCADE,
     FOREIGN KEY (source_id) REFERENCES source(id) ON DELETE CASCADE
 );
@@ -154,6 +166,7 @@ CREATE TABLE spell (
 CREATE TABLE mh_character(
     id                     SERIAL PRIMARY KEY,
     name                   VARCHAR(255) NOT NULL,
+    -- TODO: Make a race table with info
     race                   VARCHAR(255) NOT NULL,
     spell_ability_modifier INT NULL,
     proficiency_bonus      INT NULL,
@@ -193,15 +206,9 @@ CREATE TABLE class_spells (
 
 
 CREATE VIEW cannon_classes AS
-    SELECT id, name, base_class_id, source_id 
+    SELECT id, name, source_id 
     FROM class 
     WHERE source_id IN (1, 2, 3)
-;
-
-CREATE VIEW basic_classes AS
-    SELECT id, name, source_id
-    FROM class
-    WHERE base_class_id = NULL
 ;
 
 CREATE VIEW cannon_spells AS 
@@ -235,43 +242,64 @@ INSERT INTO cannon_text(title, abbreviation) VALUES
     ('Sword Coast Adventurer''s Guide', 'SCAG')
 ;
 
-INSERT INTO class(id, name, base_class_id, source_id) VALUES
-       (1, 'Bard', NULL, 1),
-       (2, 'Cleric', NULL, 1),
-       (3, 'Cleric (Arcana)', 2, 3),
-       (4, 'Cleric (Knowledge)', 2, 1),
-       (5, 'Cleric (Life)', 2, 1),
-       (6, 'Cleric (Light)', 2, 1),
-       (7, 'Cleric (Nature)', 2, 1),
-       (8, 'Cleric (Tempest)', 2, 1),
-       (9, 'Cleric (Trickery)', 2, 1),
-       (10, 'Cleric (War)', 2, 1),
-       (11, 'Cleric (Death)', 2, 1),
-       (12, 'Druid', NULL, 1),
-       (13, 'Druid (Arctic)', 12, 3),
-       (14, 'Druid (Coast)', 12, 1),
-       (15, 'Druid (Desert)', 12, 1),
-       (16, 'Druid (Forest)', 12, 1),
-       (17, 'Druid (Grassland)', 12, 1),
-       (18, 'Druid (Mountain)', 12, 1), 
-       (19, 'Druid (Swamp)', 12, 1),
-       (20, 'Druid (Underdark)', 12, 1),
-       (21, 'Paladin', NULL, 1),
-       (22, 'Paladin (Ancients)', 21, 1),
-       (23, 'Paladin (Devotion)', 21, 1),
-       (24, 'Paladin (Vengeance)', 21, 1),
-       (25, 'Paladin (Oathbreaker)', 21, 1),
-       (26, 'Paladin (Crown)', 21, 3),
-       (27, 'Ranger', NULL, 1),
-       (28, 'Sorcerer', NULL, 1),
-       (29, 'Warlock', NULL, 1),
-       (30, 'Warlock (Archfey)', 29, 1),
-       (31, 'Warlock (Fiend)', 29, 1),
-       (32, 'Warlock (Great Old One)', 29, 1),
-       (33, 'Warlock (Undying)', 29, 3),
-       (34, 'Wizard', NULL, 1),
-       (35, 'Fighter', NULL, 1),
-       (36, 'Fighter (Eldritch Knight)', 35, 1),
-       (37, 'Rogue', NULL, 1),
-       (38, 'Rogue (Arcane Trickster)', 37, 1)
+INSERT INTO class(id, name, source_id) VALUES
+    (1, 'Barbarian', 1),
+    (2, 'Bard', 1),
+    (3, 'Cleric', 1),
+    (4, 'Druid', 1),
+    (5, 'Figher', 1),
+    (6, 'Monk', 1),
+    (7, 'Paladin', 1),
+    (8, 'Ranger', 1),
+    (9, 'Rogue', 1),
+    (10, 'Sorcerer', 1),
+    (11, 'Warlock', 1),
+    (12, 'Wizard', 1)
+;
+
+INSERT INTO class_specialization(name, base_class_id, source_id) VALUES
+    -- Barbarian
+    ('Totem Warrior', 1, 1),
+    ('Berserker', 1, 1),
+
+    -- Bard
+
+    -- Cleric
+    ('Arcana', 3, 3),
+    ('Knowledge', 3, 1),
+    ('Life', 3, 1),
+    ('Nature', 3, 1),
+    ('Tempest', 3, 1),
+    ('Trickery', 3, 1),
+    ('War', 3, 1),
+    ('Death', 3, 1),
+
+    -- Druid
+    ('Arctic', 4, 3),
+    ('Coast', 4, 1),
+    ('Desert', 4, 1),
+    ('Forest', 4, 1),
+    ('Grassland', 4, 1),
+    ('Mountain', 4, 1),
+    ('Swamp', 4, 1),
+    ('Underdark', 4, 1),
+    
+    -- Fighter
+    ('Eldritch Knight', 5, 1),
+
+    -- Paladin
+    ('Ancients', 7, 1),
+    ('Devotion', 7, 1),
+    ('Vengance', 7, 1),
+    ('Oathbreaker', 7, 1),
+    ('Crown', 7, 3),
+
+    -- Rogue
+    ('Arcane Trickster', 9, 1),
+    
+    -- Warlock
+    ('Archfey', 11, 1),
+    ('Fiend', 11, 1),
+    ('Great Old One', 11, 1),
+    ('Undying', 11, 3)
 ;
